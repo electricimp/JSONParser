@@ -103,21 +103,6 @@ class JSONParser {
   // should be the same for all components within JSONParser package
   static version = [0, 1, 0];
 
-  // enable/disable debug output
-  static debug = false;
-
-  // punctuation/true/false/null
-  static ptfnPattern = "^(?:\\,|\\:|\\[|\\]|\\{|\\}|true|false|null)";
-
-  // numbers
-  static numberPattern = "^(?:\\-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)";
-
-  // strings
-  static stringPattern = "^(?:\\\"((?:[^\\r\\n\\t\\\\\\\"]|\\\\(?:[\"\\\\\\/trnfb]|u[0-9a-fA-F]{4}))*)\\\")";
-
-  // regex for trimming
-  static trimPattern = regexp("^[\\s\\t\\n\\r]*");
-
   /**
    * Parse JSON string into data structure
    *
