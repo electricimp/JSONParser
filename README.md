@@ -56,7 +56,7 @@ class MyCustomType {
   }
 
   function _serialize() {
-    return "@mycustomtype: " + this._value;
+    return "@mycustomtype:" + this._value;
   }
 
   function getValue() {
