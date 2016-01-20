@@ -606,12 +606,10 @@ class JSONParser {
         } else if ("number" == token.type) {
           // number
           value = token.value;
-          /*value = this._convert(value, token.type, converter);*/
           number[state]();
         } else if ("string" == token.type) {
           // string
           value = tokenizer.unescape(token.value);
-          /*value = this._convert(value, token.type, converter);*/
           string[state]();
         } else {
           break;
