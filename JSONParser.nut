@@ -7,157 +7,6 @@
  */
 
 /**
- * JSON Tokenizer
- * @package JSONParser
- */
-class JSONTokenizer {
-
-  // should be the same for all components within JSONParser package
-  static version = [0, 1, 1];
-
-  _ptfnRegex = null;
-  _numberRegex = null;
-  _stringRegex = null;
-  _ltrimRegex = null;
-  _unescapeRegex = null;
-
-  constructor() {
-    // punctuation/true/false/null
-    this._ptfnRegex = regexp("^(?:\\,|\\:|\\[|\\]|\\{|\\}|true|false|null)");
-
-    // numbers
-    this._numberRegex = regexp("^(?:\\-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)");
-
-    // strings
-    this._stringRegex = regexp("^(?:\\\"((?:[^\\r\\n\\t\\\\\\\"]|\\\\(?:[\"\\\\\\/trnfb]|u[0-9a-fA-F]{4}))*)\\\")");
-
-    // ltrim pattern
-    this._ltrimRegex = regexp("^[\\s\\t\\n\\r]*");
-
-    // string unescaper tokenizer pattern
-    this._unescapeRegex = regexp("\\\\(?:(?:u\\d{4})|[\\\"\\\\/bfnrt])");
-  }
-
-  /**
-   * Get next available token
-   * @param {string} str
-   * @param {integer} start
-   * @return {{type,value,length}|null}
-   */
-  function nextToken(str, start = 0) {
-
-    local
-      m,
-      type,
-      token,
-      value,
-      length,
-      whitespaces;
-
-    // count # of left-side whitespace chars
-    whitespaces = this._leadingWhitespaces(str, start);
-    start += whitespaces;
-
-    if (m = this._ptfnRegex.capture(str, start)) {
-      // punctuation/true/false/null
-      value = str.slice(m[0].begin, m[0].end);
-      type = "ptfn";
-    } else if (m = this._numberRegex.capture(str, start)) {
-      // number
-      value = str.slice(m[0].begin, m[0].end);
-      type = "number";
-    } else if (m = this._stringRegex.capture(str, start)) {
-      // string
-      value = str.slice(m[1].begin, m[1].end);
-      type = "string";
-    } else {
-      return null;
-    }
-
-    token = {
-      type = type,
-      value = value,
-      length = m[0].end - m[0].begin + whitespaces
-    };
-
-    return token;
-  }
-
-  /**
-   * Count # of left-side whitespace chars
-   * @param {string} str
-   * @param {integer} start
-   * @return {integer} number of leading spaces
-   */
-  function _leadingWhitespaces(str, start) {
-    local r = this._ltrimRegex.capture(str, start);
-
-    if (r) {
-      return r[0].end - r[0].begin;
-    } else {
-      return 0;
-    }
-  }
-
-  // unesacape() replacements table
-  _unescapeReplacements = {
-    "b": "\b",
-    "f": "\f",
-    "n": "\n",
-    "r": "\r",
-    "t": "\t"
-  };
-
-  /**
-   * Unesacape string escaped per JSON standard
-   * @param {string} str
-   * @return {string}
-   */
-  function unescape(str) {
-
-    local start = 0;
-    local res = "";
-
-    while (start < str.len()) {
-      local m = this._unescapeRegex.capture(str, start);
-
-      if (m) {
-        local token = str.slice(m[0].begin, m[0].end);
-
-        // append chars before match
-        local pre = str.slice(start, m[0].begin);
-        res += pre;
-
-        if (token.len() == 6) {
-          // unicode char in format \uhhhh, where hhhh is hex char code
-          // todo: convert \uhhhh chars
-          res += token;
-        } else {
-          // escaped char
-          // @see http://www.json.org/
-          local char = token.slice(1);
-
-          if (char in this._unescapeReplacements) {
-            res += this._unescapeReplacements[char];
-          } else {
-            res += char;
-          }
-        }
-
-      } else {
-        // append the rest of the source string
-        res += str.slice(start);
-        break;
-      }
-
-      start = m[0].end;
-    }
-
-    return res;
-  }
-}
-
-/**
  * JSON Parser
  * @package JSONParser
  */
@@ -480,5 +329,156 @@ class JSONParser {
     } else {
       return value;
     }
+  }
+}
+
+/**
+ * JSON Tokenizer
+ * @package JSONParser
+ */
+class JSONTokenizer {
+
+  // should be the same for all components within JSONParser package
+  static version = [0, 1, 1];
+
+  _ptfnRegex = null;
+  _numberRegex = null;
+  _stringRegex = null;
+  _ltrimRegex = null;
+  _unescapeRegex = null;
+
+  constructor() {
+    // punctuation/true/false/null
+    this._ptfnRegex = regexp("^(?:\\,|\\:|\\[|\\]|\\{|\\}|true|false|null)");
+
+    // numbers
+    this._numberRegex = regexp("^(?:\\-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)");
+
+    // strings
+    this._stringRegex = regexp("^(?:\\\"((?:[^\\r\\n\\t\\\\\\\"]|\\\\(?:[\"\\\\\\/trnfb]|u[0-9a-fA-F]{4}))*)\\\")");
+
+    // ltrim pattern
+    this._ltrimRegex = regexp("^[\\s\\t\\n\\r]*");
+
+    // string unescaper tokenizer pattern
+    this._unescapeRegex = regexp("\\\\(?:(?:u\\d{4})|[\\\"\\\\/bfnrt])");
+  }
+
+  /**
+   * Get next available token
+   * @param {string} str
+   * @param {integer} start
+   * @return {{type,value,length}|null}
+   */
+  function nextToken(str, start = 0) {
+
+    local
+      m,
+      type,
+      token,
+      value,
+      length,
+      whitespaces;
+
+    // count # of left-side whitespace chars
+    whitespaces = this._leadingWhitespaces(str, start);
+    start += whitespaces;
+
+    if (m = this._ptfnRegex.capture(str, start)) {
+      // punctuation/true/false/null
+      value = str.slice(m[0].begin, m[0].end);
+      type = "ptfn";
+    } else if (m = this._numberRegex.capture(str, start)) {
+      // number
+      value = str.slice(m[0].begin, m[0].end);
+      type = "number";
+    } else if (m = this._stringRegex.capture(str, start)) {
+      // string
+      value = str.slice(m[1].begin, m[1].end);
+      type = "string";
+    } else {
+      return null;
+    }
+
+    token = {
+      type = type,
+      value = value,
+      length = m[0].end - m[0].begin + whitespaces
+    };
+
+    return token;
+  }
+
+  /**
+   * Count # of left-side whitespace chars
+   * @param {string} str
+   * @param {integer} start
+   * @return {integer} number of leading spaces
+   */
+  function _leadingWhitespaces(str, start) {
+    local r = this._ltrimRegex.capture(str, start);
+
+    if (r) {
+      return r[0].end - r[0].begin;
+    } else {
+      return 0;
+    }
+  }
+
+  // unesacape() replacements table
+  _unescapeReplacements = {
+    "b": "\b",
+    "f": "\f",
+    "n": "\n",
+    "r": "\r",
+    "t": "\t"
+  };
+
+  /**
+   * Unesacape string escaped per JSON standard
+   * @param {string} str
+   * @return {string}
+   */
+  function unescape(str) {
+
+    local start = 0;
+    local res = "";
+
+    while (start < str.len()) {
+      local m = this._unescapeRegex.capture(str, start);
+
+      if (m) {
+        local token = str.slice(m[0].begin, m[0].end);
+
+        // append chars before match
+        local pre = str.slice(start, m[0].begin);
+        res += pre;
+
+        if (token.len() == 6) {
+          // unicode char in format \uhhhh, where hhhh is hex char code
+          // todo: convert \uhhhh chars
+          res += token;
+        } else {
+          // escaped char
+          // @see http://www.json.org/
+          local char = token.slice(1);
+
+          if (char in this._unescapeReplacements) {
+            res += this._unescapeReplacements[char];
+          } else {
+            res += char;
+          }
+        }
+
+      } else {
+        // append the rest of the source string
+        res += str.slice(start);
+        break;
+      }
+
+      start = m[0].end;
+    }
+
+    return res;
   }
 }
