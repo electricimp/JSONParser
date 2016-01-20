@@ -43,6 +43,10 @@ class MyCustomType {
   function _serialize() {
     return "@mycustomtype: " + this._value;
   }
+
+  function getValue() {
+    return this._value;
+  }
 }
 
 o <- {a = 1, b = "Something", c = MyCustomType("100500") };
@@ -55,15 +59,17 @@ result <- JSONParser.parse(s, function (val, type) {
 
     if (null != val.find("@mycustomtype")) {
       // convert my custom type
-      val = val.slice(15);
+      val = MyCustomType(val.slice(15))
     }
 
     return val;
   }
 });
 
-server.log(JSONEncoder.encode(result));
-// == {"a":1,"c":"100500","b":"Something"}
+server.log(result.c instanceof MyCustomType);
+// == true
+server.log(result.c.getValue());
+// == 100500
 ```
 
 ## License
