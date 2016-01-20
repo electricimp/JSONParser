@@ -89,6 +89,7 @@ class JSONTokenizer {
       this._leadingWhitespaces = r[0].end;
       return str.slice(r[0].end);
     } else {
+      this._leadingWhitespaces = 0;
       return str;
     }
   }
