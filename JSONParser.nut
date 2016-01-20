@@ -19,6 +19,7 @@ class JSONTokenizer {
   _numberRegex = null;
   _stringRegex = null;
   _ltrimRegex = null;
+  _unescapeRegex = null;
 
   constructor() {
     // punctuation/true/false/null
@@ -32,6 +33,9 @@ class JSONTokenizer {
 
     // ltrim pattern
     this._ltrimRegex = regexp("^[\\s\\t\\n\\r]*");
+
+    // string unescaper tokenizer pattern
+    this._unescapeRegex = regexp("\\\\(?:(?:u\\d{4})|[\\\"\\\\/bfnrt])");
   }
 
   /**
@@ -93,6 +97,64 @@ class JSONTokenizer {
     } else {
       return 0;
     }
+  }
+
+  // unesacape() replacements table
+  _unescapeReplacements = {
+    "b": "\b",
+    "f": "\f",
+    "n": "\n",
+    "r": "\r",
+    "t": "\t"
+  };
+
+  /**
+   * Unesacape string escaped per JSON standard
+   * @param {string} str
+   * @return {string}
+   */
+  function unescape(str) {
+
+    local start = 0;
+    local res = "";
+
+    while (start < str.len()) {
+      local m = this._unescapeRegex.capture(str, start);
+
+      if (m) {
+        local token = str.slice(m[0].begin, m[0].end);
+        server.log(_(m))
+
+        // append chars before match
+        local pre = str.slice(start, m[0].begin);
+        res += pre;
+
+        if (token.len() == 6) {
+          // unicode char in format \uhhhh, where hhhh is hex char code
+          // todo: convert \uhhhh chars
+          res += token;
+        } else {
+          // escaped char
+          // @see http://www.json.org/
+          local char = token.slice(1);
+
+          if (char in this._unescapeReplacements) {
+            res += this._unescapeReplacements[char];
+          } else {
+            res += char;
+          }
+        }
+
+      } else {
+        // append the rest of the source string
+        res += str.slice(start);
+        break;
+      }
+
+      start = m[0].end;
+    }
+
+    return res;
   }
 }
 
@@ -354,7 +416,7 @@ class JSONParser {
           number[state]();
         } else if ("string" == token.type) {
           // string
-          value = token.value;
+          value = tokenizer.unescape(token.value);
           string[state]();
         } else {
           break;
