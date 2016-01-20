@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [Squirrel JSON Parser](#squirrel-json-parser)
+  - [Usage](#usage)
+  - [Custom Types Converter](#custom-types-converter)
+    - [Sample Flow](#sample-flow)
+  - [License](#license)
+  - [Author](#author)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Squirrel JSON Parser
 
 State machine-based approach.
@@ -30,7 +43,9 @@ result <- JSONParser.parse(str, function (val, type) {
 
 If conjunction with **_serialize()** methods in JSON Encoder, it can be used to conveniently store custom data types in JSON.
 
-The whole flow may look like:
+### Sample Flow
+
+The whole scenario may look like:
 
 ```squirrel
 class MyCustomType {
@@ -52,6 +67,9 @@ class MyCustomType {
 o <- {a = 1, b = "Something", c = MyCustomType("100500") };
 s <- JSONEncoder.encode(o);
 
+server.log(s);
+// == {"a":1,"c":"@mycustomtype:100500","b":"Something"}
+
 result <- JSONParser.parse(s, function (val, type) {
   if ("number" == type) {
     return val.tofloat();
@@ -59,7 +77,7 @@ result <- JSONParser.parse(s, function (val, type) {
 
     if (null != val.find("@mycustomtype")) {
       // convert my custom type
-      val = MyCustomType(val.slice(15))
+      val = MyCustomType(val.slice(14))
     }
 
     return val;

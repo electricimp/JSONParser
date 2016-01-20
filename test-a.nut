@@ -2,346 +2,12 @@
 // should run in both ei and vanilla squirrel
 
 /**
- * JSON encoder.
- * @author Mikhail Yurasov <mikhail@electricimp.com>
- * @verion 0.3.3
- */
-JSON <- {
-
-  version = [0, 3, 3],
-
-  // max structure depth
-  // anything above probably has a cyclic ref
-  _maxDepth = 32,
-
-  /**
-   * Encode value to JSON
-   * @param {table|array|*} value
-   * @returns {string}
-   */
-  stringify = function (value) {
-    return JSON._encode(value);
-  },
-
-  /**
-   * @param {table|array} val
-   * @param {integer=0} depth – current depth level
-   * @private
-   */
-  _encode = function (val, depth = 0) {
-
-    // detect cyclic reference
-    if (depth > JSON._maxDepth) {
-      throw "Possible cyclic reference";
-    }
-
-    local
-      r = "",
-      s = "",
-      i = 0;
-
-    switch (type(val)) {
-
-      case "table":
-      case "class":
-        s = "";
-
-        // serialize properties, but not functions
-        foreach (k, v in val) {
-          if (type(v) != "function") {
-            s += ",\"" + k + "\":" + JSON._encode(v, depth + 1);
-          }
-        }
-
-        s = s.len() > 0 ? s.slice(1) : s;
-        r += "{" + s + "}";
-        break;
-
-      case "array":
-        s = "";
-
-        for (i = 0; i < val.len(); i++) {
-          s += "," + JSON._encode(val[i], depth + 1);
-        }
-
-        s = (i > 0) ? s.slice(1) : s;
-        r += "[" + s + "]";
-        break;
-
-      case "integer":
-      case "float":
-      case "bool":
-        r += val;
-        break;
-
-      case "null":
-        r += "null";
-        break;
-
-      case "instance":
-
-        if ("_serialize" in val && type(val._serialize) == "function") {
-
-          // serialize instances by calling _serialize method
-          r += JSON._encode(val._serialize(), depth + 1);
-
-        } else {
-
-          s = "";
-
-          try {
-
-            // iterate through instances which implement _nexti meta-method
-            foreach (k, v in val) {
-              s += ",\"" + k + "\":" + JSON._encode(v, depth + 1);
-            }
-
-          } catch (e) {
-
-            // iterate through instances w/o _nexti
-            // serialize properties, but not functions
-            foreach (k, v in val.getclass()) {
-              if (type(v) != "function") {
-                s += ",\"" + k + "\":" + JSON._encode(val[k], depth + 1);
-              }
-            }
-
-          }
-
-          s = s.len() > 0 ? s.slice(1) : s;
-          r += "{" + s + "}";
-        }
-
-        break;
-
-      // strings and all other
-      default:
-        r += "\"" + this._escape(val.tostring()) + "\"";
-        break;
-    }
-
-    return r;
-  },
-
-  /**
-   * Escape strings according to http://www.json.org/ spec
-   * @param {string} str
-   */
-  _escape = function (str) {
-    local res = "";
-
-    for (local i = 0; i < str.len(); i++) {
-
-      local ch1 = (str[i] & 0xFF);
-
-      if ((ch1 & 0x80) == 0x00) {
-        // 7-bit Ascii
-
-        ch1 = format("%c", ch1);
-
-        if (ch1 == "\"") {
-          res += "\\\"";
-        } else if (ch1 == "\\") {
-          res += "\\\\";
-        } else if (ch1 == "/") {
-          res += "\\/";
-        } else if (ch1 == "\b") {
-          res += "\\b";
-        } else if (ch1 == "\f") {
-          res += "\\f";
-        } else if (ch1 == "\n") {
-          res += "\\n";
-        } else if (ch1 == "\r") {
-          res += "\\r";
-        } else if (ch1 == "\t") {
-          res += "\\t";
-        } else {
-          res += ch1;
-        }
-
-      } else {
-
-        if ((ch1 & 0xE0) == 0xC0) {
-          // 110xxxxx = 2-byte unicode
-          local ch2 = (str[++i] & 0xFF);
-          res += format("%c%c", ch1, ch2);
-        } else if ((ch1 & 0xF0) == 0xE0) {
-          // 1110xxxx = 3-byte unicode
-          local ch2 = (str[++i] & 0xFF);
-          local ch3 = (str[++i] & 0xFF);
-          res += format("%c%c%c", ch1, ch2, ch3);
-        } else if ((ch1 & 0xF8) == 0xF0) {
-          // 11110xxx = 4 byte unicode
-          local ch2 = (str[++i] & 0xFF);
-          local ch3 = (str[++i] & 0xFF);
-          local ch4 = (str[++i] & 0xFF);
-          res += format("%c%c%c%c", ch1, ch2, ch3, ch4);
-        }
-
-      }
-    }
-
-    return res;
-  }
-}
-/**
  * JSON Parser & Tokenizer
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @package JSONParser
- * @version 0.1.1
+ * @version 0.1.2
  */
-
-/**
- * JSON Tokenizer
- * @package JSONParser
- */
-class JSONTokenizer {
-
-  // should be the same for all components within JSONParser package
-  static version = [0, 1, 1];
-
-  _ptfnRegex = null;
-  _numberRegex = null;
-  _stringRegex = null;
-  _ltrimRegex = null;
-  _unescapeRegex = null;
-
-  constructor() {
-    // punctuation/true/false/null
-    this._ptfnRegex = regexp("^(?:\\,|\\:|\\[|\\]|\\{|\\}|true|false|null)");
-
-    // numbers
-    this._numberRegex = regexp("^(?:\\-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)");
-
-    // strings
-    this._stringRegex = regexp("^(?:\\\"((?:[^\\r\\n\\t\\\\\\\"]|\\\\(?:[\"\\\\\\/trnfb]|u[0-9a-fA-F]{4}))*)\\\")");
-
-    // ltrim pattern
-    this._ltrimRegex = regexp("^[\\s\\t\\n\\r]*");
-
-    // string unescaper tokenizer pattern
-    this._unescapeRegex = regexp("\\\\(?:(?:u\\d{4})|[\\\"\\\\/bfnrt])");
-  }
-
-  /**
-   * Get next available token
-   * @param {string} str
-   * @param {integer} start
-   * @return {{type,value,length}|null}
-   */
-  function nextToken(str, start = 0) {
-
-    local
-      m,
-      type,
-      token,
-      value,
-      length,
-      whitespaces;
-
-    // count # of left-side whitespace chars
-    whitespaces = this._leadingWhitespaces(str, start);
-    start += whitespaces;
-
-    if (m = this._ptfnRegex.capture(str, start)) {
-      // punctuation/true/false/null
-      value = str.slice(m[0].begin, m[0].end);
-      type = "ptfn";
-    } else if (m = this._numberRegex.capture(str, start)) {
-      // number
-      value = str.slice(m[0].begin, m[0].end);
-      type = "number";
-    } else if (m = this._stringRegex.capture(str, start)) {
-      // string
-      value = str.slice(m[1].begin, m[1].end);
-      type = "string";
-    } else {
-      return null;
-    }
-
-    token = {
-      type = type,
-      value = value,
-      length = m[0].end - m[0].begin + whitespaces
-    };
-
-    return token;
-  }
-
-  /**
-   * Count # of left-side whitespace chars
-   * @param {string} str
-   * @param {integer} start
-   * @return {integer} number of leading spaces
-   */
-  function _leadingWhitespaces(str, start) {
-    local r = this._ltrimRegex.capture(str, start);
-
-    if (r) {
-      return r[0].end - r[0].begin;
-    } else {
-      return 0;
-    }
-  }
-
-  // unesacape() replacements table
-  _unescapeReplacements = {
-    "b": "\b",
-    "f": "\f",
-    "n": "\n",
-    "r": "\r",
-    "t": "\t"
-  };
-
-  /**
-   * Unesacape string escaped per JSON standard
-   * @param {string} str
-   * @return {string}
-   */
-  function unescape(str) {
-
-    local start = 0;
-    local res = "";
-
-    while (start < str.len()) {
-      local m = this._unescapeRegex.capture(str, start);
-
-      if (m) {
-        local token = str.slice(m[0].begin, m[0].end);
-
-        // append chars before match
-        local pre = str.slice(start, m[0].begin);
-        res += pre;
-
-        if (token.len() == 6) {
-          // unicode char in format \uhhhh, where hhhh is hex char code
-          // todo: convert \uhhhh chars
-          res += token;
-        } else {
-          // escaped char
-          // @see http://www.json.org/
-          local char = token.slice(1);
-
-          if (char in this._unescapeReplacements) {
-            res += this._unescapeReplacements[char];
-          } else {
-            res += char;
-          }
-        }
-
-      } else {
-        // append the rest of the source string
-        res += str.slice(start);
-        break;
-      }
-
-      start = m[0].end;
-    }
-
-    return res;
-  }
-}
 
 /**
  * JSON Parser
@@ -350,7 +16,7 @@ class JSONTokenizer {
 class JSONParser {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 1, 1];
+  static version = [0, 1, 2];
 
   /**
    * Parse JSON string into data structure
@@ -593,11 +259,7 @@ class JSONParser {
         token,
         tokenizer = JSONTokenizer();
 
-      while (true) {
-
-        token = tokenizer.nextToken(str, start);
-
-        if (!token) break;
+      while (token = tokenizer.nextToken(str, start)) {
 
         if ("ptfn" == token.type) {
           // punctuation/true/false/null
@@ -610,8 +272,6 @@ class JSONParser {
           // string
           value = tokenizer.unescape(token.value);
           string[state]();
-        } else {
-          break;
         }
 
         start += token.length;
@@ -666,6 +326,157 @@ class JSONParser {
     } else {
       return value;
     }
+  }
+}
+
+/**
+ * JSON Tokenizer
+ * @package JSONParser
+ */
+class JSONTokenizer {
+
+  // should be the same for all components within JSONParser package
+  static version = [0, 1, 2];
+
+  _ptfnRegex = null;
+  _numberRegex = null;
+  _stringRegex = null;
+  _ltrimRegex = null;
+  _unescapeRegex = null;
+
+  constructor() {
+    // punctuation/true/false/null
+    this._ptfnRegex = regexp("^(?:\\,|\\:|\\[|\\]|\\{|\\}|true|false|null)");
+
+    // numbers
+    this._numberRegex = regexp("^(?:\\-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)");
+
+    // strings
+    this._stringRegex = regexp("^(?:\\\"((?:[^\\r\\n\\t\\\\\\\"]|\\\\(?:[\"\\\\\\/trnfb]|u[0-9a-fA-F]{4}))*)\\\")");
+
+    // ltrim pattern
+    this._ltrimRegex = regexp("^[\\s\\t\\n\\r]*");
+
+    // string unescaper tokenizer pattern
+    this._unescapeRegex = regexp("\\\\(?:(?:u\\d{4})|[\\\"\\\\/bfnrt])");
+  }
+
+  /**
+   * Get next available token
+   * @param {string} str
+   * @param {integer} start
+   * @return {{type,value,length}|null}
+   */
+  function nextToken(str, start = 0) {
+
+    local
+      m,
+      type,
+      token,
+      value,
+      length,
+      whitespaces;
+
+    // count # of left-side whitespace chars
+    whitespaces = this._leadingWhitespaces(str, start);
+    start += whitespaces;
+
+    if (m = this._ptfnRegex.capture(str, start)) {
+      // punctuation/true/false/null
+      value = str.slice(m[0].begin, m[0].end);
+      type = "ptfn";
+    } else if (m = this._numberRegex.capture(str, start)) {
+      // number
+      value = str.slice(m[0].begin, m[0].end);
+      type = "number";
+    } else if (m = this._stringRegex.capture(str, start)) {
+      // string
+      value = str.slice(m[1].begin, m[1].end);
+      type = "string";
+    } else {
+      return null;
+    }
+
+    token = {
+      type = type,
+      value = value,
+      length = m[0].end - m[0].begin + whitespaces
+    };
+
+    return token;
+  }
+
+  /**
+   * Count # of left-side whitespace chars
+   * @param {string} str
+   * @param {integer} start
+   * @return {integer} number of leading spaces
+   */
+  function _leadingWhitespaces(str, start) {
+    local r = this._ltrimRegex.capture(str, start);
+
+    if (r) {
+      return r[0].end - r[0].begin;
+    } else {
+      return 0;
+    }
+  }
+
+  // unesacape() replacements table
+  _unescapeReplacements = {
+    "b": "\b",
+    "f": "\f",
+    "n": "\n",
+    "r": "\r",
+    "t": "\t"
+  };
+
+  /**
+   * Unesacape string escaped per JSON standard
+   * @param {string} str
+   * @return {string}
+   */
+  function unescape(str) {
+
+    local start = 0;
+    local res = "";
+
+    while (start < str.len()) {
+      local m = this._unescapeRegex.capture(str, start);
+
+      if (m) {
+        local token = str.slice(m[0].begin, m[0].end);
+
+        // append chars before match
+        local pre = str.slice(start, m[0].begin);
+        res += pre;
+
+        if (token.len() == 6) {
+          // unicode char in format \uhhhh, where hhhh is hex char code
+          // todo: convert \uhhhh chars
+          res += token;
+        } else {
+          // escaped char
+          // @see http://www.json.org/
+          local char = token.slice(1);
+
+          if (char in this._unescapeReplacements) {
+            res += this._unescapeReplacements[char];
+          } else {
+            res += char;
+          }
+        }
+
+      } else {
+        // append the rest of the source string
+        res += str.slice(start);
+        break;
+      }
+
+      start = m[0].end;
+    }
+
+    return res;
   }
 }
 
