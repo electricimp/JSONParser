@@ -20,8 +20,6 @@ class JSONTokenizer {
   _stringRegex = null;
   _ltrimRegex = null;
 
-  _leadingWhitespaces = 0;
-
   constructor() {
     // punctuation/true/false/null
     this._ptfnRegex = regexp("^(?:\\,|\\:|\\[|\\]|\\{|\\}|true|false|null)");
@@ -39,28 +37,32 @@ class JSONTokenizer {
   /**
    * Get next available token
    * @param {string} str
+   * @param {integer} start
    * @return {{type,value,length}|null}
    */
-  function nextToken(str) {
+  function nextToken(str, start = 0) {
 
     local
       m,
       type,
+      token,
       value,
       length,
-      token;
+      whitespaces;
 
-    str = this._ltrim(str);
+    // count # of left-side whitespace chars
+    whitespaces = this._leadingWhitespaces(str, start);
+    start += whitespaces;
 
-    if (m = this._ptfnRegex.capture(str)) {
+    if (m = this._ptfnRegex.capture(str, start)) {
       // punctuation/true/false/null
       value = str.slice(m[0].begin, m[0].end);
       type = "ptfn";
-    } else if (m = this._numberRegex.capture(str)) {
+    } else if (m = this._numberRegex.capture(str, start)) {
       // number
       value = str.slice(m[0].begin, m[0].end);
       type = "number";
-    } else if (m = this._stringRegex.capture(str)) {
+    } else if (m = this._stringRegex.capture(str, start)) {
       // string
       value = str.slice(m[1].begin, m[1].end);
       type = "string";
@@ -71,26 +73,25 @@ class JSONTokenizer {
     token = {
       type = type,
       value = value,
-      length = this._leadingWhitespaces + m[0].end
+      length = m[0].end - m[0].begin + whitespaces
     };
 
     return token;
   }
 
   /**
-   * Trim whitespace characters on the left
+   * Count # of left-side whitespace chars
    * @param {string} str
-   * @return {string}
+   * @param {integer} start
+   * @return {integer} number of leading spaces
    */
-  function _ltrim(str) {
-    local r = this._ltrimRegex.capture(str);
+  function _leadingWhitespaces(str, start) {
+    local r = this._ltrimRegex.capture(str, start);
 
     if (r) {
-      this._leadingWhitespaces = r[0].end;
-      return str.slice(r[0].end);
+      return r[0].end - r[0].begin;
     } else {
-      this._leadingWhitespaces = 0;
-      return str;
+      return 0;
     }
   }
 }
@@ -328,6 +329,9 @@ class JSONParser {
     state = "go";
     stack = [];
 
+    // current tokenizeing position
+    local start = 0;
+
     try {
 
       local
@@ -337,7 +341,7 @@ class JSONParser {
 
       while (true) {
 
-        token = tokenizer.nextToken(str);
+        token = tokenizer.nextToken(str, start);
 
         if (!token) break;
 
@@ -356,11 +360,11 @@ class JSONParser {
           break;
         }
 
-        str = str.slice(token.length);
+        start += token.length;
       }
 
     } catch (e) {
-      throw e;
+      state = e;
     }
 
     // check is the final state is not ok
