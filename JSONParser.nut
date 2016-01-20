@@ -3,7 +3,7 @@
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @package JSONParser
- * @version 0.1.0
+ * @version 0.1.1
  */
 
 /**
@@ -13,7 +13,7 @@
 class JSONTokenizer {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 1, 0];
+  static version = [0, 1, 1];
 
   _ptfnRegex = null;
   _numberRegex = null;
@@ -164,7 +164,7 @@ class JSONTokenizer {
 class JSONParser {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 1, 0];
+  static version = [0, 1, 1];
 
   /**
    * Parse JSON string into data structure
@@ -419,12 +419,10 @@ class JSONParser {
         } else if ("number" == token.type) {
           // number
           value = token.value;
-          /*value = this._convert(value, token.type, converter);*/
           number[state]();
         } else if ("string" == token.type) {
           // string
           value = tokenizer.unescape(token.value);
-          /*value = this._convert(value, token.type, converter);*/
           string[state]();
         } else {
           break;
