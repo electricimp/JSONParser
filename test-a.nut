@@ -184,13 +184,12 @@ JSON <- {
     return res;
   }
 }
-
 /**
  * JSON Parser & Tokenizer
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @package JSONParser
- * @version 0.1.0
+ * @version 0.1.1
  */
 
 /**
@@ -200,7 +199,7 @@ JSON <- {
 class JSONTokenizer {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 1, 0];
+  static version = [0, 1, 1];
 
   _ptfnRegex = null;
   _numberRegex = null;
@@ -351,7 +350,7 @@ class JSONTokenizer {
 class JSONParser {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 1, 0];
+  static version = [0, 1, 1];
 
   /**
    * Parse JSON string into data structure
@@ -606,12 +605,10 @@ class JSONParser {
         } else if ("number" == token.type) {
           // number
           value = token.value;
-          /*value = this._convert(value, token.type, converter);*/
           number[state]();
         } else if ("string" == token.type) {
           // string
           value = tokenizer.unescape(token.value);
-          /*value = this._convert(value, token.type, converter);*/
           string[state]();
         } else {
           break;
@@ -650,7 +647,7 @@ class JSONParser {
 
       local parametercCount = 2;
 
-      // .getinfos() is missing from imp
+      // .getinfos() is missing on ei platform
       if ("getinfos" in converter) {
         parametercCount = converter.getinfos().parameters.len()
           - 1 /* "this" is also included */;
@@ -674,6 +671,14 @@ class JSONParser {
 
 // few tests
 
+function p(str) {
+    if ("server" in getroottable()) {
+    server.log(str);
+  } else {
+    ::print(str + "\n");
+  }
+}
+
 s <- {};
 s[0] <- "  {\"a\":123, \"c\":  {\"_field\":123},\"b\":[1,2,3,4],\"e\":{\"field\":123},\"d\":5.125,\"g\":true,\"f\":null,\"i\":\"a\\ta\",\"h\":\"Some\\nùnicode\\rstring ø∆ø\"}";
 s[1] <- "{\n\"a\":123, \"bc\":222}";
@@ -681,6 +686,13 @@ s[2] <- "{\r\n    \"glossary\": {\r\n        \"title\": \"example glossary\",\r\
 s[3] <- "{\"widget\": {\r\n    \"debug\": \"on\",\r\n    \"window\": {\r\n        \"title\": \"Sample Konfabulator Widget\",\r\n        \"name\": \"main_window\",\r\n        \"width\": 500,\r\n        \"height\": 500\r\n    },\r\n    \"image\": { \r\n        \"src\": \"Images/Sun.png\",\r\n        \"name\": \"sun1\",\r\n        \"hOffset\": 250,\r\n        \"vOffset\": 250,\r\n        \"alignment\": \"center\"\r\n    },\r\n    \"text\": {\r\n        \"data\": \"Click Here\",\r\n        \"size\": 36,\r\n        \"style\": \"bold\",\r\n        \"name\": \"text1\",\r\n        \"hOffset\": 250,\r\n        \"vOffset\": 100,\r\n        \"alignment\": \"center\",\r\n        \"onMouseUp\": \"sun1.opacity = (sun1.opacity / 100) * 90;\"\r\n    }\r\n}} ";
 
 foreach (k, v in s) {
+
+  collectgarbage();
+
+  if ("imp" in getroottable() && "getmemoryfree" in imp) {
+    local m = imp.getmemoryfree();
+    p("memory used: " + m);
+  }
 
   o <- JSONParser.parse(v, function (val, type) {
     if ("number" == type) {
@@ -690,10 +702,11 @@ foreach (k, v in s) {
     }
   });
 
-  if ("server" in getroottable()) {
-    server.log(JSON.stringify(o) + "\n\n");
-  } else {
-    ::print(JSON.stringify(o) + "\n\n\n");
+  if ("imp" in getroottable() && "getmemoryfree" in imp) {
+    local m = imp.getmemoryfree();
+    p("memory used: " + m);
   }
+
+  p(JSON.stringify(o) + "\n\n");
 
 }
