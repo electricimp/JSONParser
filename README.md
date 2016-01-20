@@ -6,7 +6,7 @@
 result <- JSONParser.parse(str[, <converter function>]);
 ```
 
-## Custom types converter
+## Custom Types Converter
 
 Custom converter function can be used to deserialize custom types.
 
