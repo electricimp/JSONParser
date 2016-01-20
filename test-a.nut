@@ -1,3 +1,190 @@
+// few tests
+// should run in both ei and vanilla squirrel
+
+/**
+ * JSON encoder.
+ * @author Mikhail Yurasov <mikhail@electricimp.com>
+ * @verion 0.3.3
+ */
+JSON <- {
+
+  version = [0, 3, 3],
+
+  // max structure depth
+  // anything above probably has a cyclic ref
+  _maxDepth = 32,
+
+  /**
+   * Encode value to JSON
+   * @param {table|array|*} value
+   * @returns {string}
+   */
+  stringify = function (value) {
+    return JSON._encode(value);
+  },
+
+  /**
+   * @param {table|array} val
+   * @param {integer=0} depth – current depth level
+   * @private
+   */
+  _encode = function (val, depth = 0) {
+
+    // detect cyclic reference
+    if (depth > JSON._maxDepth) {
+      throw "Possible cyclic reference";
+    }
+
+    local
+      r = "",
+      s = "",
+      i = 0;
+
+    switch (type(val)) {
+
+      case "table":
+      case "class":
+        s = "";
+
+        // serialize properties, but not functions
+        foreach (k, v in val) {
+          if (type(v) != "function") {
+            s += ",\"" + k + "\":" + JSON._encode(v, depth + 1);
+          }
+        }
+
+        s = s.len() > 0 ? s.slice(1) : s;
+        r += "{" + s + "}";
+        break;
+
+      case "array":
+        s = "";
+
+        for (i = 0; i < val.len(); i++) {
+          s += "," + JSON._encode(val[i], depth + 1);
+        }
+
+        s = (i > 0) ? s.slice(1) : s;
+        r += "[" + s + "]";
+        break;
+
+      case "integer":
+      case "float":
+      case "bool":
+        r += val;
+        break;
+
+      case "null":
+        r += "null";
+        break;
+
+      case "instance":
+
+        if ("_serialize" in val && type(val._serialize) == "function") {
+
+          // serialize instances by calling _serialize method
+          r += JSON._encode(val._serialize(), depth + 1);
+
+        } else {
+
+          s = "";
+
+          try {
+
+            // iterate through instances which implement _nexti meta-method
+            foreach (k, v in val) {
+              s += ",\"" + k + "\":" + JSON._encode(v, depth + 1);
+            }
+
+          } catch (e) {
+
+            // iterate through instances w/o _nexti
+            // serialize properties, but not functions
+            foreach (k, v in val.getclass()) {
+              if (type(v) != "function") {
+                s += ",\"" + k + "\":" + JSON._encode(val[k], depth + 1);
+              }
+            }
+
+          }
+
+          s = s.len() > 0 ? s.slice(1) : s;
+          r += "{" + s + "}";
+        }
+
+        break;
+
+      // strings and all other
+      default:
+        r += "\"" + this._escape(val.tostring()) + "\"";
+        break;
+    }
+
+    return r;
+  },
+
+  /**
+   * Escape strings according to http://www.json.org/ spec
+   * @param {string} str
+   */
+  _escape = function (str) {
+    local res = "";
+
+    for (local i = 0; i < str.len(); i++) {
+
+      local ch1 = (str[i] & 0xFF);
+
+      if ((ch1 & 0x80) == 0x00) {
+        // 7-bit Ascii
+
+        ch1 = format("%c", ch1);
+
+        if (ch1 == "\"") {
+          res += "\\\"";
+        } else if (ch1 == "\\") {
+          res += "\\\\";
+        } else if (ch1 == "/") {
+          res += "\\/";
+        } else if (ch1 == "\b") {
+          res += "\\b";
+        } else if (ch1 == "\f") {
+          res += "\\f";
+        } else if (ch1 == "\n") {
+          res += "\\n";
+        } else if (ch1 == "\r") {
+          res += "\\r";
+        } else if (ch1 == "\t") {
+          res += "\\t";
+        } else {
+          res += ch1;
+        }
+
+      } else {
+
+        if ((ch1 & 0xE0) == 0xC0) {
+          // 110xxxxx = 2-byte unicode
+          local ch2 = (str[++i] & 0xFF);
+          res += format("%c%c", ch1, ch2);
+        } else if ((ch1 & 0xF0) == 0xE0) {
+          // 1110xxxx = 3-byte unicode
+          local ch2 = (str[++i] & 0xFF);
+          local ch3 = (str[++i] & 0xFF);
+          res += format("%c%c%c", ch1, ch2, ch3);
+        } else if ((ch1 & 0xF8) == 0xF0) {
+          // 11110xxx = 4 byte unicode
+          local ch2 = (str[++i] & 0xFF);
+          local ch3 = (str[++i] & 0xFF);
+          local ch4 = (str[++i] & 0xFF);
+          res += format("%c%c%c%c", ch1, ch2, ch3, ch4);
+        }
+
+      }
+    }
+
+    return res;
+  }
+}
+
 /**
  * JSON Parser & Tokenizer
  *
@@ -463,7 +650,7 @@ class JSONParser {
 
       local parametercCount = 2;
 
-      // .getinfos() is missing on ei platform
+      // .getinfos() is missing from imp
       if ("getinfos" in converter) {
         parametercCount = converter.getinfos().parameters.len()
           - 1 /* "this" is also included */;
@@ -483,4 +670,30 @@ class JSONParser {
       return value;
     }
   }
+}
+
+// few tests
+
+s <- {};
+s[0] <- "  {\"a\":123, \"c\":  {\"_field\":123},\"b\":[1,2,3,4],\"e\":{\"field\":123},\"d\":5.125,\"g\":true,\"f\":null,\"i\":\"a\\ta\",\"h\":\"Some\\nùnicode\\rstring ø∆ø\"}";
+s[1] <- "{\n\"a\":123, \"bc\":222}";
+s[2] <- "{\r\n    \"glossary\": {\r\n        \"title\": \"example glossary\",\r\n\t\t\"GlossDiv\": {\r\n            \"title\": \"S\",\r\n\t\t\t\"GlossList\": {\r\n                \"GlossEntry\": {\r\n                    \"ID\": \"SGML\",\r\n\t\t\t\t\t\"SortAs\": \"SGML\",\r\n\t\t\t\t\t\"GlossTerm\": \"Standard Generalized Markup Language\",\r\n\t\t\t\t\t\"Acronym\": \"SGML\",\r\n\t\t\t\t\t\"Abbrev\": \"ISO 8879:1986\",\r\n\t\t\t\t\t\"GlossDef\": {\r\n                        \"para\": \"A meta-markup language, used to create markup languages such as DocBook.\",\r\n\t\t\t\t\t\t\"GlossSeeAlso\": [\"GML\", \"XML\"]\r\n                    },\r\n\t\t\t\t\t\"GlossSee\": \"markup\"\r\n                }\r\n            }\r\n        }\r\n    }\r\n}";
+s[3] <- "{\"widget\": {\r\n    \"debug\": \"on\",\r\n    \"window\": {\r\n        \"title\": \"Sample Konfabulator Widget\",\r\n        \"name\": \"main_window\",\r\n        \"width\": 500,\r\n        \"height\": 500\r\n    },\r\n    \"image\": { \r\n        \"src\": \"Images/Sun.png\",\r\n        \"name\": \"sun1\",\r\n        \"hOffset\": 250,\r\n        \"vOffset\": 250,\r\n        \"alignment\": \"center\"\r\n    },\r\n    \"text\": {\r\n        \"data\": \"Click Here\",\r\n        \"size\": 36,\r\n        \"style\": \"bold\",\r\n        \"name\": \"text1\",\r\n        \"hOffset\": 250,\r\n        \"vOffset\": 100,\r\n        \"alignment\": \"center\",\r\n        \"onMouseUp\": \"sun1.opacity = (sun1.opacity / 100) * 90;\"\r\n    }\r\n}} ";
+
+foreach (k, v in s) {
+
+  o <- JSONParser.parse(v, function (val, type) {
+    if ("number" == type) {
+      return val.tofloat();
+    } else if ("string" == type) {
+      return val.toupper();
+    }
+  });
+
+  if ("server" in getroottable()) {
+    server.log(JSON.stringify(o) + "\n\n");
+  } else {
+    ::print(JSON.stringify(o) + "\n\n\n");
+  }
+
 }
