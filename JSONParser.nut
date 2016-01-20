@@ -123,7 +123,6 @@ class JSONTokenizer {
 
       if (m) {
         local token = str.slice(m[0].begin, m[0].end);
-        server.log(_(m))
 
         // append chars before match
         local pre = str.slice(start, m[0].begin);
