@@ -463,7 +463,7 @@ class JSONParser {
 
       local parametercCount = 2;
 
-      // .getinfos() is missing from imp
+      // .getinfos() is missing on ei platform
       if ("getinfos" in converter) {
         parametercCount = converter.getinfos().parameters.len()
           - 1 /* "this" is also included */;
