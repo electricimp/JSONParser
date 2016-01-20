@@ -7,26 +7,76 @@
 
 class JSONTokenizer {
 
-  // punctuation/true/false/null
-  static ptfnPattern = "^(?:\\,|\\:|\\[|\\]|\\{|\\}|true|false|null)";
+  _ptfnRegex = null;
+  _numberRegex = null;
+  _stringRegex = null;
+  _ltrimRegex = null;
 
-  // numbers
-  static numberPattern = "^(?:\\-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)";
+  _leadingWhitespaces = 0;
 
-  // strings
-  static stringPattern = "^(?:\\\"((?:[^\\r\\n\\t\\\\\\\"]|\\\\(?:[\"\\\\\\/trnfb]|u[0-9a-fA-F]{4}))*)\\\")";
+  constructor() {
+    // punctuation/true/false/null
+    this._ptfnRegex = regexp("^(?:\\,|\\:|\\[|\\]|\\{|\\}|true|false|null)");
 
-  // trimming pattern
-  static trimPattern = regexp("^[\\s\\t\\n\\r]*");
+    // numbers
+    this._numberRegex = regexp("^(?:\\-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)");
 
-  function tokenize() {
+    // strings
+    this._stringRegex = regexp("^(?:\\\"((?:[^\\r\\n\\t\\\\\\\"]|\\\\(?:[\"\\\\\\/trnfb]|u[0-9a-fA-F]{4}))*)\\\")");
 
-    local ptfnRegex = regex(this.ptfnPattern);
-    local numberRegex = regex(this.numberPattern);
-    local stringRegex = regex(this.stringPattern);
+    // ltrim pattern
+    this._ltrimRegex = regexp("^[\\s\\t\\n\\r]*");
+  }
 
+  function nextToken(str) {
 
+    local
+      m,
+      token,
+      type,
+      length,
+      result;
 
+    str = this._ltrim(str);
+
+    if (m = this._ptfnRegex.capture(str)) {
+      // punctuation/true/false/null
+      token = str.slice(m[0].begin, m[0].end);
+      type = "ptfn";
+    } else if (m = this._numberRegex.capture(str)) {
+      // number
+      token = str.slice(m[0].begin, m[0].end);
+      type = "number";
+    } else if (m = this._stringRegex.capture(str)) {
+      // string
+      token = str.slice(m[1].begin, m[1].end);
+      type = "string";
+    } else {
+      return null;
+    }
+
+    result = {
+      type = type,
+      token = token,
+      length = this._leadingWhitespaces + m[0].end
+    }
+
+    return result;
+  }
+
+  /**
+   * Trim whitespace characters on the left
+   * @param {string} str
+   */
+  function _ltrim(str) {
+    local r = this._ltrimRegex.capture(str);
+
+    if (r) {
+      this._leadingWhitespaces = r[0].end;
+      return str.slice(r[0].end);
+    } else {
+      return str;
+    }
   }
 }
 
@@ -48,40 +98,6 @@ class JSONParser {
 
   // regex for trimming
   static trimPattern = regexp("^[\\s\\t\\n\\r]*");
-
-  /**
-   * Extends regexp::capture() with capturing string
-   * @param {regexp} regex
-   * @param {string} str
-   */
-  function _capture(regex, str) {
-    local r = regex.capture(str);
-
-    if (r) {
-      foreach (k, v in r) {
-        r[k].match <- str.slice(v.begin, v.end);
-      }
-    }
-
-    return r;
-  }
-
-  /**
-   * Trim whitespace characters on the left
-   * @param {string} str
-   */
-  function _lTrim(str) {
-
-    static e = regexp(this.trimPattern)
-
-    local r = e.capture(str);
-
-    if (r) {
-      return str.slice(r[0].end);
-    } else {
-      return str;
-    }
-  }
 
   /**
    * Debug printouts
@@ -389,7 +405,7 @@ s <- "           {\"a\":123, \"c\":{\"_field\":123},\"b\":[1,2,3,4],\"e\":{\"fie
 /*r <- regexpEx("^(\\,\\:\\[\\]\\{\\})|true|false");*/
 
 
-s <- "\"a\":123, \"bc\":222}";
+/*s <- "\"a\":123, \"bc\":222}";
 
 // puntuation, true, false, null
 r <- JSONParser.ptfnRegex;
@@ -401,7 +417,7 @@ server.log("\n\nnum:\n" + _(JSONParser._capture(r, s)));
 
 // string
 r <- JSONParser.stringRegex;
-server.log("\n\nstr:\n" + _(JSONParser._capture(r, s)));
+server.log("\n\nstr:\n" + _(JSONParser._capture(r, s)));*/
 
 
 /*s <- "{\"a\":123, \"bc\":222}";*/
@@ -409,3 +425,21 @@ server.log("\n\nstr:\n" + _(JSONParser._capture(r, s)));
 /*JSONParser.debug <- true;
 o <- JSONParser.parse(s);
 server.log("\nres:" + _(o));*/
+
+
+jt <- JSONTokenizer();
+t <- null;
+
+while (true) {
+  t = jt.nextToken(s);
+
+  if (!t) break;
+
+  server.log(_(t));
+  server.log(s + "\n");
+
+  s = s.slice(t.length);
+}
+
+/*server.log(_(jt.nextToken("{\"a\":123, \"bc\":222}")));
+server.log(_(jt.nextToken("\"a\":123, \"bc\":222}")));*/
