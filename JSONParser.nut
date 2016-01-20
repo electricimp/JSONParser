@@ -368,9 +368,11 @@ class JSONParser {
     }
 
     // check is the final state is not ok
-    // or if there is somethign left
-    if (state != "ok" || regexp("[^\\s]").match(str)) {
-      throw "JSON syntax error near " + str.slice(0, str.len() > 10 ? 10 : str.len());
+    // or if there is somethign left in the str
+    if (state != "ok" || regexp("[^\\s]").capture(str, start)) {
+      local min = @(a, b) a < b ? a : b;
+      local near = str.slice(start, min(str.len(), start + 10));
+      throw "JSON Syntax Error near `" + near + "`";
     }
 
     return value;
