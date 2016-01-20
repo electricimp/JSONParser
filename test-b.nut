@@ -521,6 +521,9 @@ class MyCustomType {
 o <- {a = 1, b = "Something", c = MyCustomType("100500") };
 s <- JSONEncoder.encode(o);
 
+p(s);
+// == {"a":1,"c":"@mycustomtype: 100500","b":"Something"}
+
 result <- JSONParser.parse(s, function (val, type) {
   if ("number" == type) {
     return val.tofloat();
