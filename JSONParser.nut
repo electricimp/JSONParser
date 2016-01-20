@@ -256,11 +256,7 @@ class JSONParser {
         token,
         tokenizer = JSONTokenizer();
 
-      while (true) {
-
-        token = tokenizer.nextToken(str, start);
-
-        if (!token) break;
+      while (token = tokenizer.nextToken(str, start)) {
 
         if ("ptfn" == token.type) {
           // punctuation/true/false/null
@@ -273,8 +269,6 @@ class JSONParser {
           // string
           value = tokenizer.unescape(token.value);
           string[state]();
-        } else {
-          break;
         }
 
         start += token.length;
