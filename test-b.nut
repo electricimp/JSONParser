@@ -510,7 +510,7 @@ class MyCustomType {
   }
 
   function _serialize() {
-    return "@mycustomtype: " + this._value;
+    return "@mycustomtype:" + this._value;
   }
 
   function getValue() {
@@ -522,7 +522,7 @@ o <- {a = 1, b = "Something", c = MyCustomType("100500") };
 s <- JSONEncoder.encode(o);
 
 p(s);
-// == {"a":1,"c":"@mycustomtype: 100500","b":"Something"}
+// == {"a":1,"c":"@mycustomtype:100500","b":"Something"}
 
 result <- JSONParser.parse(s, function (val, type) {
   if ("number" == type) {
@@ -531,7 +531,7 @@ result <- JSONParser.parse(s, function (val, type) {
 
     if (null != val.find("@mycustomtype")) {
       // convert my custom type
-      val = MyCustomType(val.slice(15))
+      val = MyCustomType(val.slice(14))
     }
 
     return val;
