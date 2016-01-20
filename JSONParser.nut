@@ -170,9 +170,10 @@ class JSONParser {
    * Parse JSON string into data structure
    *
    * @param {string} str
+   * @param {function({string} value[, "number"|"string"])|null} converter
    * @return {*}
    */
-  function parse(str) {
+  function parse(str, converter = null) {
 
     local state;
     local stack = []
@@ -194,14 +195,17 @@ class JSONParser {
         state = "colon";
       },
       ovalue = function () {
+        value = this._convert(value, "string", converter);
         state = "ocomma";
-      },
+      }.bindenv(this),
       firstavalue = function () {
+        value = this._convert(value, "string", converter);
         state = "acomma";
-      },
+      }.bindenv(this),
       avalue = function () {
+        value = this._convert(value, "string", converter);
         state = "acomma";
-      }
+      }.bindenv(this)
     };
 
     // the actions for number tokens
@@ -210,14 +214,17 @@ class JSONParser {
         state = "ok";
       },
       ovalue = function () {
+        value = this._convert(value, "number", converter);
         state = "ocomma";
-      },
+      }.bindenv(this),
       firstavalue = function () {
+        value = this._convert(value, "number", converter);
         state = "acomma";
-      },
+      }.bindenv(this),
       avalue = function () {
+        value = this._convert(value, "number", converter);
         state = "acomma";
-      }
+      }.bindenv(this)
     };
 
     // action table
@@ -411,11 +418,13 @@ class JSONParser {
           action[token.value][state]();
         } else if ("number" == token.type) {
           // number
-          value = token.value.tofloat();
+          value = token.value;
+          /*value = this._convert(value, token.type, converter);*/
           number[state]();
         } else if ("string" == token.type) {
           // string
           value = tokenizer.unescape(token.value);
+          /*value = this._convert(value, token.type, converter);*/
           string[state]();
         } else {
           break;
@@ -437,5 +446,41 @@ class JSONParser {
     }
 
     return value;
+  }
+
+  /**
+   * Convert strings/numbers
+   * Uses custom converter function
+   *
+   * @param {string} value
+   * @param {string} type
+   * @param {function|null} converter
+   */
+  function _convert(value, type, converter) {
+    if ("function" == typeof converter) {
+
+      // # of params for converter function
+
+      local parametercCount = 2;
+
+      // .getinfos() is missing from imp
+      if ("getinfos" in converter) {
+        parametercCount = converter.getinfos().parameters.len()
+          - 1 /* "this" is also included */;
+      }
+
+      if (parametercCount == 1) {
+        return converter(value);
+      } else if (parametercCount == 2) {
+        return converter(value, type);
+      } else {
+        throw "Error: converter function must take 1 or 2 parameters"
+      }
+
+    } else if ("number" == type) {
+      return value.tofloat();
+    } else {
+      return value;
+    }
   }
 }
