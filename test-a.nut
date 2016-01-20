@@ -1,3 +1,6 @@
+// few tests
+// should run in both ei and vanilla squirrel
+
 /**
  * JSON encoder.
  * @author Mikhail Yurasov <mikhail@electricimp.com>
@@ -668,6 +671,8 @@ class JSONParser {
     }
   }
 }
+
+// few tests
 
 s <- {};
 s[0] <- "  {\"a\":123, \"c\":  {\"_field\":123},\"b\":[1,2,3,4],\"e\":{\"field\":123},\"d\":5.125,\"g\":true,\"f\":null,\"i\":\"a\\ta\",\"h\":\"Some\\nùnicode\\rstring ø∆ø\"}";
