@@ -1,11 +1,19 @@
 /**
- * JSON Parser
+ * JSON Parser & Tokenizer
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
- * @version 0.0.1-dev
+ * @package JSONParser
+ * @version 0.1.0
  */
 
+/**
+ * JSON Tokenizer
+ * @package JSONParser
+ */
 class JSONTokenizer {
+
+  // should be the same for all components within JSONParser package
+  static version = [0, 1, 0];
 
   _ptfnRegex = null;
   _numberRegex = null;
@@ -28,45 +36,51 @@ class JSONTokenizer {
     this._ltrimRegex = regexp("^[\\s\\t\\n\\r]*");
   }
 
+  /**
+   * Get next available token
+   * @param {string} str
+   * @return {{type,value,length}|null}
+   */
   function nextToken(str) {
 
     local
       m,
-      token,
       type,
+      value,
       length,
-      result;
+      token;
 
     str = this._ltrim(str);
 
     if (m = this._ptfnRegex.capture(str)) {
       // punctuation/true/false/null
-      token = str.slice(m[0].begin, m[0].end);
+      value = str.slice(m[0].begin, m[0].end);
       type = "ptfn";
     } else if (m = this._numberRegex.capture(str)) {
       // number
-      token = str.slice(m[0].begin, m[0].end);
+      value = str.slice(m[0].begin, m[0].end);
       type = "number";
     } else if (m = this._stringRegex.capture(str)) {
       // string
-      token = str.slice(m[1].begin, m[1].end);
+      value = str.slice(m[1].begin, m[1].end);
       type = "string";
     } else {
       return null;
     }
 
-    result = {
+    token = {
       type = type,
-      token = token,
+      value = value,
       length = this._leadingWhitespaces + m[0].end
-    }
+    };
 
-    return result;
+    return token;
   }
 
   /**
    * Trim whitespace characters on the left
    * @param {string} str
+   * @return {string}
    */
   function _ltrim(str) {
     local r = this._ltrimRegex.capture(str);
@@ -80,9 +94,14 @@ class JSONTokenizer {
   }
 }
 
+/**
+ * JSON Parser
+ * @package JSONParser
+ */
 class JSONParser {
 
-  static version = [0, 0, 1, "dev"];
+  // should be the same for all components within JSONParser package
+  static version = [0, 1, 0];
 
   // enable/disable debug output
   static debug = false;
@@ -100,19 +119,12 @@ class JSONParser {
   static trimPattern = regexp("^[\\s\\t\\n\\r]*");
 
   /**
-   * Debug printouts
+   * Parse JSON string into data structure
+   *
+   * @param {string} str
+   * @return {*}
    */
-  function _debug(str) {
-    if (this.debug) {
-      if ("server" in getroottable() && "log" in server) {
-        server.log(str);
-      } else {
-        ::print(str + "\n");
-      }
-    }
-  }
-
-  parse = function (str) {
+  function parse(str) {
 
     local state;
     local stack = []
@@ -330,116 +342,47 @@ class JSONParser {
     state = "go";
     stack = [];
 
-    /*try {*/
+    try {
 
       local
         result,
-        token;
+        token,
+        tokenizer = JSONTokenizer();
 
       while (true) {
 
-        str = this._lTrim(str);
-        this._debug("str before: " + str);
+        token = tokenizer.nextToken(str);
 
-        if (result = this._capture(this.ptfnRegex, str)) {
+        if (!token) break;
 
+        if ("ptfn" == token.type) {
           // punctuation/true/false/null
-          token = result[0].match;
-          this._debug("state == " + state)
-          this._debug("ptfn token found: " + token);
-          action[token][state]();
-          this._debug("state -> " + state);
-
-        } else if (result = this._capture(this.numberRegex, str)) {
-
+          action[token.value][state]();
+        } else if ("number" == token.type) {
           // number
-          token = result[0].match
-          this._debug("state == " + state)
-          this._debug("number token found: " + token);
-          value = token.tofloat();
+          value = token.value.tofloat();
           number[state]();
-          this._debug("state -> " + state);
-
-        } else if (result = this._capture(this.stringRegex, str)) {
-
+        } else if ("string" == token.type) {
           // string
-          token = result[1].match
-          this._debug("state == " + state)
-          this._debug("string token found: " + token);
-          value = token;
+          value = token.value;
           string[state]();
-          this._debug("state -> " + state);
-
         } else {
           break;
         }
 
-        str = str.slice(result[0].end);
-
-        this._debug("str after: " + str);
-        this._debug("");
-
+        str = str.slice(token.length);
       }
 
-    /*} catch (e) {
-      state = e;
+    } catch (e) {
       throw e;
-    }*/
+    }
 
     // check is the final state is not ok
     // or if there is somethign left
-    /*::print(str.len());*/
-    if (state != "ok" || regexp("[^\\s]").capture(str)) {
-      /*throw "JSON syntax error near " + str.slice(0, str.len() > 10 ? 10 : str.len());*/
+    if (state != "ok" || regexp("[^\\s]").match(str)) {
+      throw "JSON syntax error near " + str.slice(0, str.len() > 10 ? 10 : str.len());
     }
 
     return value;
   }
 }
-
-s <- "           {\"a\":123, \"c\":{\"_field\":123},\"b\":[1,2,3,4],\"e\":{\"field\":123},\"d\":5.125,\"g\":true,\"f\":null,\"i\":\"a\\ta\",\"h\":\"Some\\nùnicode\\rstring ø∆ø\"}";
-/*o <- JSONParser.parse();*/
-/*server.log(JSON.stringify(o));*/
-
-
-/*r <- regexpEx("^(\\,\\:\\[\\]\\{\\})|true|false");*/
-
-
-/*s <- "\"a\":123, \"bc\":222}";
-
-// puntuation, true, false, null
-r <- JSONParser.ptfnRegex;
-server.log("ptfn:\n" + _(JSONParser._capture(r, s)));
-
-// num
-r <- JSONParser.numberRegex;
-server.log("\n\nnum:\n" + _(JSONParser._capture(r, s)));
-
-// string
-r <- JSONParser.stringRegex;
-server.log("\n\nstr:\n" + _(JSONParser._capture(r, s)));*/
-
-
-/*s <- "{\"a\":123, \"bc\":222}";*/
-
-/*JSONParser.debug <- true;
-o <- JSONParser.parse(s);
-server.log("\nres:" + _(o));*/
-
-
-jt <- JSONTokenizer();
-t <- null;
-
-while (true) {
-  t = jt.nextToken(s);
-
-  if (!t) break;
-
-  server.log(_(t));
-  server.log(s + "\n");
-
-  s = s.slice(t.length);
-}
-
-/*server.log(_(jt.nextToken("{\"a\":123, \"bc\":222}")));
-server.log(_(jt.nextToken("\"a\":123, \"bc\":222}")));*/
