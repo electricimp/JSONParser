@@ -3,7 +3,7 @@
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @package JSONParser
- * @version 0.1.1
+ * @version 0.1.2
  */
 
 /**
@@ -13,7 +13,7 @@
 class JSONParser {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 1, 1];
+  static version = [0, 1, 2];
 
   /**
    * Parse JSON string into data structure
@@ -333,7 +333,7 @@ class JSONParser {
 class JSONTokenizer {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 1, 1];
+  static version = [0, 1, 2];
 
   _ptfnRegex = null;
   _numberRegex = null;
