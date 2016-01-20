@@ -1,5 +1,7 @@
 # Squirrel JSON Parser
 
+State machine-based approach.
+
 ## Usage
 
 ```squirrel
