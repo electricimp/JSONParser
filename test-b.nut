@@ -184,13 +184,12 @@ JSON <- {
     return res;
   }
 }
-
 /**
  * JSON Parser & Tokenizer
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @package JSONParser
- * @version 0.1.0
+ * @version 0.1.1
  */
 
 /**
@@ -200,7 +199,7 @@ JSON <- {
 class JSONTokenizer {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 1, 0];
+  static version = [0, 1, 1];
 
   _ptfnRegex = null;
   _numberRegex = null;
@@ -351,7 +350,7 @@ class JSONTokenizer {
 class JSONParser {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 1, 0];
+  static version = [0, 1, 1];
 
   /**
    * Parse JSON string into data structure
@@ -648,7 +647,7 @@ class JSONParser {
 
       local parametercCount = 2;
 
-      // .getinfos() is missing from imp
+      // .getinfos() is missing on ei platform
       if ("getinfos" in converter) {
         parametercCount = converter.getinfos().parameters.len()
           - 1 /* "this" is also included */;
@@ -670,10 +669,19 @@ class JSONParser {
   }
 }
 
+//
+
+function p(str) {
+    if ("server" in getroottable()) {
+    server.log(str);
+  } else {
+    ::print(str + "\n");
+  }
+}
+
 JSONEncoder <- {
   encode = JSON.stringify
 }
-
 
 // few tests
 
@@ -710,7 +718,7 @@ result <- JSONParser.parse(s, function (val, type) {
   }
 });
 
-server.log(result.c instanceof MyCustomType);
+p(result.c instanceof MyCustomType);
 // == true
-server.log(result.c.getValue());
+p(result.c.getValue());
 // == 100500
