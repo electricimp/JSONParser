@@ -5,21 +5,54 @@
  * @version 0.0.1-dev
  */
 
+class JSONTokenizer {
+
+  // punctuation/true/false/null
+  static ptfnPattern = "^(?:\\,|\\:|\\[|\\]|\\{|\\}|true|false|null)";
+
+  // numbers
+  static numberPattern = "^(?:\\-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)";
+
+  // strings
+  static stringPattern = "^(?:\\\"((?:[^\\r\\n\\t\\\\\\\"]|\\\\(?:[\"\\\\\\/trnfb]|u[0-9a-fA-F]{4}))*)\\\")";
+
+  // trimming pattern
+  static trimPattern = regexp("^[\\s\\t\\n\\r]*");
+
+  function tokenize() {
+
+    local ptfnRegex = regex(this.ptfnPattern);
+    local numberRegex = regex(this.numberPattern);
+    local stringRegex = regex(this.stringPattern);
+
+
+
+  }
+}
+
 class JSONParser {
 
   static version = [0, 0, 1, "dev"];
 
+  // enable/disable debug output
+  static debug = false;
+
   // punctuation/true/false/null
-  static ptfnRegex = regexp("^(?:\\s)*(\\,|\\:|\\,|\\[|\\]|\\{|\\}|true|false|null)");
+  static ptfnPattern = "^(?:\\,|\\:|\\[|\\]|\\{|\\}|true|false|null)";
 
   // numbers
-  static numberRegex = regexp("^(?:\\s)*(\\-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)");
+  static numberPattern = "^(?:\\-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)";
 
   // strings
-  static stringRegex = regexp("^(?:\\s)*(\\\"(?:[^\\r\\n\\t\\\\\\\"]|\\\\(?:[\"\\\\\\/trnfb]|u[0-9a-fA-F]{4}))*\\\")");
+  static stringPattern = "^(?:\\\"((?:[^\\r\\n\\t\\\\\\\"]|\\\\(?:[\"\\\\\\/trnfb]|u[0-9a-fA-F]{4}))*)\\\")";
+
+  // regex for trimming
+  static trimPattern = regexp("^[\\s\\t\\n\\r]*");
 
   /**
    * Extends regexp::capture() with capturing string
+   * @param {regexp} regex
+   * @param {string} str
    */
   function _capture(regex, str) {
     local r = regex.capture(str);
@@ -31,6 +64,36 @@ class JSONParser {
     }
 
     return r;
+  }
+
+  /**
+   * Trim whitespace characters on the left
+   * @param {string} str
+   */
+  function _lTrim(str) {
+
+    static e = regexp(this.trimPattern)
+
+    local r = e.capture(str);
+
+    if (r) {
+      return str.slice(r[0].end);
+    } else {
+      return str;
+    }
+  }
+
+  /**
+   * Debug printouts
+   */
+  function _debug(str) {
+    if (this.debug) {
+      if ("server" in getroottable() && "log" in server) {
+        server.log(str);
+      } else {
+        ::print(str + "\n");
+      }
+    }
   }
 
   parse = function (str) {
@@ -112,16 +175,16 @@ class JSONParser {
         firstokey = function () {
           local pop = stack.pop();
           value = container;
-          container = pop.container;
-          key = pop.key;
+          container = ("container" in pop) ? pop.container : null;
+          key = ("container" in pop) ? pop.key : null;
           state = pop.state;
         },
         ocomma = function () {
           local pop = stack.pop();
-          container[key] = value;
+          container[key] <- value;
           value = container;
-          container = pop.container;
-          key = pop.key;
+          container = ("container" in pop) ? pop.container : null;
+          key = ("container" in pop) ? pop.key : null;
           state = pop.state;
         }
       },
@@ -153,16 +216,16 @@ class JSONParser {
         firstavalue = function () {
           local pop = stack.pop();
           value = container;
-          container = pop.container;
-          key = pop.key;
+          container = ("container" in pop) ? pop.container : null;
+          key = ("container" in pop) ? pop.key : null;
           state = pop.state;
         },
         acomma = function () {
           local pop = stack.pop();
           container.push(value);
           value = container;
-          container = pop.container;
-          key = pop.key;
+          container = ("container" in pop) ? pop.container : null;
+          key = ("container" in pop) ? pop.key : null;
           state = pop.state;
         }
       },
@@ -179,7 +242,7 @@ class JSONParser {
 
       "," : {
         ocomma = function () {
-          container[key] = value;
+          container[key] <- value;
           state = "okey";
         },
         acomma = function () {
@@ -251,7 +314,7 @@ class JSONParser {
     state = "go";
     stack = [];
 
-    try {
+    /*try {*/
 
       local
         result,
@@ -259,51 +322,66 @@ class JSONParser {
 
       while (true) {
 
-        server.log("str before: " + str);
+        str = this._lTrim(str);
+        this._debug("str before: " + str);
 
         if (result = this._capture(this.ptfnRegex, str)) {
+
           // punctuation/true/false/null
-          token = result[1].match;
-          server.log("state == " + state)
-          server.log("ptfn token found: " + token);
+          token = result[0].match;
+          this._debug("state == " + state)
+          this._debug("ptfn token found: " + token);
           action[token][state]();
-          server.log("state -> " + state);
+          this._debug("state -> " + state);
+
         } else if (result = this._capture(this.numberRegex, str)) {
+
           // number
-          token = result[1].match
-          server.log("state == " + state)
-          server.log("number token found: " + token);
+          token = result[0].match
+          this._debug("state == " + state)
+          this._debug("number token found: " + token);
           value = token.tofloat();
           number[state]();
-          server.log("state -> " + state);
+          this._debug("state -> " + state);
+
         } else if (result = this._capture(this.stringRegex, str)) {
+
           // string
           token = result[1].match
-          server.log("state == " + state)
-          server.log("string token found: " + token);
+          this._debug("state == " + state)
+          this._debug("string token found: " + token);
           value = token;
           string[state]();
-          server.log("state -> " + state);
+          this._debug("state -> " + state);
+
         } else {
           break;
         }
 
         str = str.slice(result[0].end);
 
-        server.log("str after: " + str);
-        server.log("");
+        this._debug("str after: " + str);
+        this._debug("");
 
       }
 
-    } catch (e) {
+    /*} catch (e) {
       state = e;
+      throw e;
+    }*/
+
+    // check is the final state is not ok
+    // or if there is somethign left
+    /*::print(str.len());*/
+    if (state != "ok" || regexp("[^\\s]").capture(str)) {
+      /*throw "JSON syntax error near " + str.slice(0, str.len() > 10 ? 10 : str.len());*/
     }
 
     return value;
   }
 }
 
-s <- "   {\"a\":123, \"c\":{\"_field\":123},\"b\":[1,2,3,4],\"e\":{\"field\":123},\"d\":5.125,\"g\":true,\"f\":null,\"i\":\"a\\ta\",\"h\":\"Some\\nùnicode\\rstring ø∆ø\"}";
+s <- "           {\"a\":123, \"c\":{\"_field\":123},\"b\":[1,2,3,4],\"e\":{\"field\":123},\"d\":5.125,\"g\":true,\"f\":null,\"i\":\"a\\ta\",\"h\":\"Some\\nùnicode\\rstring ø∆ø\"}";
 /*o <- JSONParser.parse();*/
 /*server.log(JSON.stringify(o));*/
 
@@ -311,21 +389,23 @@ s <- "   {\"a\":123, \"c\":{\"_field\":123},\"b\":[1,2,3,4],\"e\":{\"field\":123
 /*r <- regexpEx("^(\\,\\:\\[\\]\\{\\})|true|false");*/
 
 
-/*s <- "1,2]";
+s <- "\"a\":123, \"bc\":222}";
 
 // puntuation, true, false, null
 r <- JSONParser.ptfnRegex;
-server.log("ptfn:\n" + JSON.stringify(JSONParser._capture(r, s)));
+server.log("ptfn:\n" + _(JSONParser._capture(r, s)));
 
 // num
 r <- JSONParser.numberRegex;
-server.log("\n\nnum:\n" + JSON.stringify(JSONParser._capture(r, s)));
+server.log("\n\nnum:\n" + _(JSONParser._capture(r, s)));
 
 // string
 r <- JSONParser.stringRegex;
-server.log("\n\nstr:\n" + JSON.stringify(JSONParser._capture(r, s)));*/
+server.log("\n\nstr:\n" + _(JSONParser._capture(r, s)));
 
-s <- "{\"a\":123}";
 
+/*s <- "{\"a\":123, \"bc\":222}";*/
+
+/*JSONParser.debug <- true;
 o <- JSONParser.parse(s);
-server.log(JSON.stringify(o));
+server.log("\nres:" + _(o));*/
