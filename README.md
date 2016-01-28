@@ -96,6 +96,7 @@ server.log(result.c.getValue());
 
 [MIT](LICENSE.txt)
 
-## Author
+## Development
 
-Mikhail Yurasov <mikhail@electricimp.com>
+This repository uses [git-flow](http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/).
+Please make your pull requests to the __develop__ branch.
