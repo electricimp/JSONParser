@@ -94,7 +94,7 @@ server.log(result.c.getValue());
 
 ## License
 
-[MIT](LICENSE.txt)
+The code in this repository is licensed under [MIT License](https://github.com/electricimp/serializer/tree/master/LICENSE).
 
 ## Development
 
