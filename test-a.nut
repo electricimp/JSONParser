@@ -1,4 +1,4 @@
-#require "JSONParser.nut:0.1.2"
+#require "JSONParser.nut:0.2.0"
 
 // few tests
 
