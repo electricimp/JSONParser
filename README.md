@@ -13,7 +13,9 @@
 
 # Squirrel JSON Parser
 
-State machine-based approach.
+Parses JSON into Squirrel data types.
+
+_To add this library to your project, add **#require "JSONParser.class.nut:0.1.2"** to the top of your code._
 
 ## Usage
 
