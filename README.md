@@ -13,7 +13,9 @@
 
 # Squirrel JSON Parser
 
-State machine-based approach.
+Parses JSON into Squirrel data types.
+
+_To add this library to your project, add **#require "JSONParser.nut:0.1.2"** to the top of your code._
 
 ## Usage
 
@@ -92,8 +94,9 @@ server.log(result.c.getValue());
 
 ## License
 
-[MIT](LICENSE.txt)
+The code in this repository is licensed under [MIT License](https://github.com/electricimp/serializer/tree/master/LICENSE).
 
-## Author
+## Development
 
-Mikhail Yurasov <mikhail@electricimp.com>
+This repository uses [git-flow](http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/).
+Please make your pull requests to the __develop__ branch.
