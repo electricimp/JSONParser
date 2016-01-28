@@ -3,7 +3,7 @@
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @package JSONParser
- * @version 0.1.2
+ * @version 0.2.0
  */
 
 /**
@@ -13,7 +13,7 @@
 class JSONParser {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 1, 2];
+  static version = [0, 2, 0];
 
   /**
    * Parse JSON string into data structure
