@@ -7,7 +7,7 @@
   - [Custom Types Converter](#custom-types-converter)
     - [Sample Flow](#sample-flow)
   - [License](#license)
-  - [Author](#author)
+  - [Development](#development)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -94,7 +94,7 @@ server.log(result.c.getValue());
 
 ## License
 
-The code in this repository is licensed under [MIT License](https://github.com/electricimp/serializer/tree/master/LICENSE).
+The code in this repository is licensed under [MIT License](https://github.com/electricimp/serializer/tree/master/LICENSE). Partially based on Douglas Crockford's [state-machine JSON parser](https://github.com/douglascrockford/JSON-js/blob/master/json_parse_state.js) available as public domain.
 
 ## Development
 
