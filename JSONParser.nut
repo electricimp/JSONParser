@@ -1,5 +1,5 @@
 /**
- * JSON Parser & Tokenizer
+ * JSON Parser
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @package JSONParser
@@ -254,7 +254,7 @@ class JSONParser {
       local
         result,
         token,
-        tokenizer = JSONTokenizer();
+        tokenizer = _JSONTokenizer();
 
       while (token = tokenizer.nextToken(str, start)) {
 
@@ -330,10 +330,7 @@ class JSONParser {
  * JSON Tokenizer
  * @package JSONParser
  */
-class JSONTokenizer {
-
-  // should be the same for all components within JSONParser package
-  static version = [0, 2, 0];
+class _JSONTokenizer {
 
   _ptfnRegex = null;
   _numberRegex = null;
