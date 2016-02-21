@@ -7,7 +7,6 @@
   - [Custom Types Converter](#custom-types-converter)
     - [Sample Flow](#sample-flow)
   - [Testing](#testing)
-    - [Hardware Required](#hardware-required)
   - [Development](#development)
   - [License](#license)
 
@@ -116,8 +115,6 @@ To run test with your settings (for example while you are developing), create yo
  ```bash
  imptest test -c .imptest.local
  ```
-
-### Hardware Required
 
 Tests do not require any specific hardware.
 
