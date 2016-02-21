@@ -13,6 +13,10 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+<br/>
+
+[![Build Status](https://travis-ci.org/electricimp/JSONParser.svg?branch=develop)](https://travis-ci.org/electricimp/JSONParser)
+
 # Squirrel JSON Parser
 
 Parses JSON into Squirrel data types.
