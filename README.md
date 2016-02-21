@@ -6,10 +6,16 @@
   - [Usage](#usage)
   - [Custom Types Converter](#custom-types-converter)
     - [Sample Flow](#sample-flow)
-  - [License](#license)
+  - [Testing](#testing)
+    - [Hardware Required](#hardware-required)
   - [Development](#development)
+  - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+<br/>
+
+[![Build Status](https://travis-ci.org/electricimp/JSONParser.svg?branch=develop)](https://travis-ci.org/electricimp/JSONParser)
 
 # Squirrel JSON Parser
 
@@ -92,11 +98,34 @@ server.log(result.c.getValue());
 // == 100500
 ```
 
-## License
 
-The code in this repository is licensed under [MIT License](https://github.com/electricimp/serializer/tree/master/LICENSE). Partially based on Douglas Crockford's [state-machine JSON parser](https://github.com/douglascrockford/JSON-js/blob/master/json_parse_state.js) available as public domain.
+## Testing
+
+Repository contains [impUnit](https://github.com/electricimp/impUnit) tests and a configuration for [impTest](https://github.com/electricimp/impTest) tool.
+
+Tests can be launched with:
+
+```bash
+imptest test
+```
+
+By default configuration for the testing is read from [.imptest](https://github.com/electricimp/impTest/blob/develop/docs/imptest-spec.md).
+
+To run test with your settings (for example while you are developing), create your copy of **.imptest** file and name it something like **.imptest.local**, then run tests with:
+ 
+ ```bash
+ imptest test -c .imptest.local
+ ```
+
+### Hardware Required
+
+Tests do not require any specific hardware.
 
 ## Development
 
 This repository uses [git-flow](http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/).
 Please make your pull requests to the __develop__ branch.
+
+## License
+
+The code in this repository is licensed under [MIT License](https://github.com/electricimp/serializer/tree/master/LICENSE). Partially based on Douglas Crockford's [state-machine JSON parser](https://github.com/douglascrockford/JSON-js/blob/master/json_parse_state.js) available as public domain.

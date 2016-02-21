@@ -1,2 +1,4 @@
+_private
 *.nut.bundled
 devtest*.nut
+.imptest.local
