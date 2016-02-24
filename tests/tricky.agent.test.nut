@@ -22,7 +22,7 @@ class Tricky_TestCase extends ImpTestCase {
   }
 
   function test_4() {
-    local s = "[\"one\",{\"obj\":\"two\"}];";
+    local s = "[\"one\",{\"obj\":\"two\"}]";
     local d = JSONParser.parse(s);
     this.assertDeepEqual(d,  ["one", {"obj":"two"}]);
   }
