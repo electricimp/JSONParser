@@ -108,7 +108,7 @@ class JSONParser {
           local pop = stack.pop();
           value = container;
           container = ("container" in pop) ? pop.container : null;
-          key = ("container" in pop) ? pop.key : null;
+          key = ("key" in pop) ? pop.key : null;
           state = pop.state;
         },
         ocomma = function () {
@@ -116,7 +116,7 @@ class JSONParser {
           container[key] <- value;
           value = container;
           container = ("container" in pop) ? pop.container : null;
-          key = ("container" in pop) ? pop.key : null;
+          key = ("key" in pop) ? pop.key : null;
           state = pop.state;
         }
       },
@@ -149,7 +149,7 @@ class JSONParser {
           local pop = stack.pop();
           value = container;
           container = ("container" in pop) ? pop.container : null;
-          key = ("container" in pop) ? pop.key : null;
+          key = ("key" in pop) ? pop.key : null;
           state = pop.state;
         },
         acomma = function () {
@@ -157,7 +157,7 @@ class JSONParser {
           container.push(value);
           value = container;
           container = ("container" in pop) ? pop.container : null;
-          key = ("container" in pop) ? pop.key : null;
+          key = ("key" in pop) ? pop.key : null;
           state = pop.state;
         }
       },
