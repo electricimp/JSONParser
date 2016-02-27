@@ -1,9 +1,9 @@
 /**
- * JSON Parser & Tokenizer
+ * JSON Parser
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @package JSONParser
- * @version 0.2.0
+ * @version 0.3.0
  */
 
 /**
@@ -13,7 +13,7 @@
 class JSONParser {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 2, 0];
+  static version = [0, 3, 0];
 
   /**
    * Parse JSON string into data structure
@@ -108,7 +108,7 @@ class JSONParser {
           local pop = stack.pop();
           value = container;
           container = ("container" in pop) ? pop.container : null;
-          key = ("container" in pop) ? pop.key : null;
+          key = ("key" in pop) ? pop.key : null;
           state = pop.state;
         },
         ocomma = function () {
@@ -116,7 +116,7 @@ class JSONParser {
           container[key] <- value;
           value = container;
           container = ("container" in pop) ? pop.container : null;
-          key = ("container" in pop) ? pop.key : null;
+          key = ("key" in pop) ? pop.key : null;
           state = pop.state;
         }
       },
@@ -149,7 +149,7 @@ class JSONParser {
           local pop = stack.pop();
           value = container;
           container = ("container" in pop) ? pop.container : null;
-          key = ("container" in pop) ? pop.key : null;
+          key = ("key" in pop) ? pop.key : null;
           state = pop.state;
         },
         acomma = function () {
@@ -157,7 +157,7 @@ class JSONParser {
           container.push(value);
           value = container;
           container = ("container" in pop) ? pop.container : null;
-          key = ("container" in pop) ? pop.key : null;
+          key = ("key" in pop) ? pop.key : null;
           state = pop.state;
         }
       },
@@ -254,7 +254,7 @@ class JSONParser {
       local
         result,
         token,
-        tokenizer = JSONTokenizer();
+        tokenizer = _JSONTokenizer();
 
       while (token = tokenizer.nextToken(str, start)) {
 
@@ -330,10 +330,7 @@ class JSONParser {
  * JSON Tokenizer
  * @package JSONParser
  */
-class JSONTokenizer {
-
-  // should be the same for all components within JSONParser package
-  static version = [0, 1, 2];
+class _JSONTokenizer {
 
   _ptfnRegex = null;
   _numberRegex = null;

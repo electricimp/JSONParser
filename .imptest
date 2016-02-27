@@ -1,0 +1,6 @@
+{
+    "modelId": "C7BYOoog__29" /* April */,
+    "devices": ["23604c058fb7bdee" /* EI.Test.D */],
+    "agentFile": "JSONParser.nut",
+    "timeout": 10
+}
