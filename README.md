@@ -14,13 +14,13 @@
 
 <br/>
 
-[![Build Status](https://travis-ci.org/electricimp/JSONParser.svg?branch=develop)](https://travis-ci.org/electricimp/JSONParser)
+[![Build Status](https://travis-ci.org/electricimp/JSONParser.svg?branch=master)](https://travis-ci.org/electricimp/JSONParser)
 
 # Squirrel JSON Parser
 
 Parses JSON into Squirrel data types.
 
-_To add this library to your project, add **#require "JSONParser.nut:0.3.0"** to the top of your code._
+_To add this library to your project, add **#require "JSONParser.nut:0.3.1"** to the top of your code._
 
 ## Usage
 

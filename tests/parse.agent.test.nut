@@ -8,7 +8,6 @@ class Parsing_TestCase extends ImpTestCase {
     local s = "  {\"a\":123, \"c\":  {\"_field\":123},\"b\":[1,2,3,4],\"e\":{\"field\":123},\"d\":5.125,\"g\":true,\"f\":null,\"i\":\"a\\ta\",\"h\":\"Some\\nùnicode\\rstring ø∆ø\"}";
     local d = JSONParser.parse(s);
     this.assertDeepEqual(
-      d,
       {
         "a": 123,
         "c": {
@@ -28,7 +27,7 @@ class Parsing_TestCase extends ImpTestCase {
         "f": null,
         "i": "a\ta",
         "h": "Some\nùnicode\rstring ø∆ø"
-      }
+      }, d
     );
   }
 
@@ -43,7 +42,6 @@ class Parsing_TestCase extends ImpTestCase {
     local d = JSONParser.parse(s);
 
     this.assertDeepEqual(
-      d,
        {
          "glossary": {
            "GlossDiv": {
@@ -68,7 +66,7 @@ class Parsing_TestCase extends ImpTestCase {
            },
            "title": "example glossary"
          }
-       }
+       }, d
     );
   }
 
@@ -76,7 +74,6 @@ class Parsing_TestCase extends ImpTestCase {
     local s = "{\"widget\": {\r\n    \"debug\": \"on\",\r\n    \"window\": {\r\n        \"title\": \"Sample Konfabulator Widget\",\r\n        \"name\": \"main_window\",\r\n        \"width\": 500,\r\n        \"height\": 500\r\n    },\r\n    \"image\": { \r\n        \"src\": \"Images/Sun.png\",\r\n        \"name\": \"sun1\",\r\n        \"hOffset\": 250,\r\n        \"vOffset\": 250,\r\n        \"alignment\": \"center\"\r\n    },\r\n    \"text\": {\r\n        \"data\": \"Click Here\",\r\n        \"size\": 36,\r\n        \"style\": \"bold\",\r\n        \"name\": \"text1\",\r\n        \"hOffset\": 250,\r\n        \"vOffset\": 100,\r\n        \"alignment\": \"center\",\r\n        \"onMouseUp\": \"sun1.opacity = (sun1.opacity / 100) * 90;\"\r\n    }\r\n}} ";
     local d = JSONParser.parse(s);
     this.assertDeepEqual(
-      d,
       {
         "widget": {
            "debug": "on",
@@ -104,7 +101,7 @@ class Parsing_TestCase extends ImpTestCase {
                "onMouseUp": "sun1.opacity = (sun1.opacity / 100) * 90;"
            }
        }
-     }
+     }, d
     );
   }
 }
