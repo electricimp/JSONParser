@@ -14,7 +14,7 @@
 
 <br/>
 
-[![Build Status](https://travis-ci.org/electricimp/JSONParser.svg?branch=develop)](https://travis-ci.org/electricimp/JSONParser)
+[![Build Status](https://travis-ci.org/electricimp/JSONParser.svg?branch=master)](https://travis-ci.org/electricimp/JSONParser)
 
 # Squirrel JSON Parser
 
