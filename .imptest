@@ -1,6 +1,14 @@
 {
-    "modelId": "C7BYOoog__29" /* April */,
-    "devices": ["23604c058fb7bdee" /* EI.Test.D */],
+    "modelId": "21W4rI8fTCeD" /* April.H */,
+    "devices": [
+        "233d4b6938a609ee" /* EI.Test.H @ JSONParser lib */
+    ],
     "agentFile": "JSONParser.nut",
-    "timeout": 10
+    "deviceFile": false,
+    "stopOnFailure": false,
+    "timeout": 10,
+    "tests": [
+        "*.test.nut",
+        "tests/**/*.test.nut"
+    ]
 }
