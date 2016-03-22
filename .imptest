@@ -1,7 +1,7 @@
 {
-    "modelId": "21W4rI8fTCeD" /* April.H */,
+    "modelId": "nFFs9qZjGmCB" /* Vimp.1 */,
     "devices": [
-        "233d4b6938a609ee" /* EI.Test.H @ JSONParser lib */
+        "4353450000000001" /* EI.Test.Vimp.1 @ JSONParser lib */
     ],
     "agentFile": "JSONParser.nut",
     "deviceFile": false,
