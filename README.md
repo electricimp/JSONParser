@@ -20,7 +20,7 @@
 
 Parses JSON into Squirrel data types.
 
-_To add this library to your project, add **#require "JSONParser.nut:0.3.1"** to the top of your code._
+_To add this library to your project, add **#require "JSONParser.nut:0.3.2"** to the top of your code._
 
 ## Usage
 
@@ -111,7 +111,7 @@ imptest test
 By default configuration for the testing is read from [.imptest](https://github.com/electricimp/impTest/blob/develop/docs/imptest-spec.md).
 
 To run test with your settings (for example while you are developing), create your copy of **.imptest** file and name it something like **.imptest.local**, then run tests with:
- 
+
  ```bash
  imptest test -c .imptest.local
  ```
