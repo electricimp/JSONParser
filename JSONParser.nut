@@ -319,7 +319,7 @@ class JSONParser {
       }
 
     } else if ("number" == type) {
-      return (value.find(".") == null || value.find("e") == null) ? value.tointeger() : value.tofloat();
+      return (value.find(".") == null && value.find("e") == null) ? value.tointeger() : value.tofloat();
     } else {
       return value;
     }
