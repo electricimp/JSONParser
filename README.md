@@ -28,7 +28,7 @@ JSONParser has no constructor and one public function *parse*.
 
 ### parse(*jsonString[, converterFunction]*)
 
-The **parse** method takes one required parameter a JSON encoded string, and one optional parameter a function used to convert custom types.
+The **parse** method takes one required parameter a JSON encoded string and one optional parameter a function used to convert custom types.  The method returns a deserialized version of the object that was passed in.
 
 ###### Basic Example:
 ```squirrel
