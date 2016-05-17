@@ -13,7 +13,7 @@
 class JSONParser {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 3, 2];
+  static version = [1, 0, 0];
 
   /**
    * Parse JSON string into data structure
