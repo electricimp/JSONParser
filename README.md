@@ -24,7 +24,7 @@ To add this library to your project, add `#require "JSONParser.nut:0.3.2"` to th
 
 ## Usage
 
-JSONParser requires no constructor and has one public function, *parse*.
+JSONParser requires no constructor and has one public function *parse*.
 
 ### parse(*jsonString[, converterFunction]*)
 
