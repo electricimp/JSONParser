@@ -20,15 +20,24 @@
 
 Parses JSON into Squirrel data types.
 
-`To add this library to your project, add` **#require "JSONParser.nut:0.3.2"** `to the top of your code.`
+To add this library to your project, add `#require "JSONParser.nut:0.3.2"` to the top of your code.
 
 ## Usage
 
+JSONParser requires no constructor and has one public function, *parse*.
+
+### parse(*jsonString[, converterFunction]*)
+
+The **parse** method takes one required parameter a JSON encoded string, and one optional parameter a function used to convert custom types.  
+
+###### Basic Example: 
 ```squirrel
-result <- JSONParser.parse(*jsonString[, converterFunction]*);
+local jsonString = "{\"one\" : 1}";
+result <- JSONParser.parse(jsonString);
+server.log(result.one);
 ```
 
-### Custom Types Converter
+#### Custom Types Converter
 
 The custom converter function can be used to deserialize custom types. It takes two parameters:
 
