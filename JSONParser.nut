@@ -13,7 +13,7 @@
 class JSONParser {
 
   // should be the same for all components within JSONParser package
-  static version = [0, 3, 1];
+  static version = [1, 0, 0];
 
   /**
    * Parse JSON string into data structure
@@ -319,7 +319,7 @@ class JSONParser {
       }
 
     } else if ("number" == type) {
-      return value.tofloat();
+      return (value.find(".") == null && value.find("e") == null && value.find("E") == null) ? value.tointeger() : value.tofloat();
     } else {
       return value;
     }
