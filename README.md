@@ -56,9 +56,7 @@ result <- JSONParser.parse(jsonString, function (value, type) {
 });
 ```
 
-### Sample Flow
-
-The following code demonstrates a typical usage pattern:
+###### Extended Example
 
 ```squirrel
 class MyCustomType {
