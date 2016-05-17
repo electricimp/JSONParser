@@ -20,39 +20,44 @@
 
 Parses JSON into Squirrel data types.
 
-_To add this library to your project, add **#require "JSONParser.nut:0.3.1"** to the top of your code._
+**To add this library to your project, add** `#require "JSONParser.nut:1.0.0"` **to the top of your code.**
 
 ## Usage
 
+JSONParser has no constructor and one public function *parse*.
+
+### parse(*jsonString[, converterFunction]*)
+
+The **parse** method takes one required parameter a JSON encoded string, and one optional parameter a function used to convert custom types.
+
+###### Basic Example:
 ```squirrel
-result <- JSONParser.parse(str[, <converter function>]);
+local jsonString = "{\"one\" : 1}";
+result <- JSONParser.parse(jsonString);
+server.log(result.one);
+// == 1
 ```
 
-## Custom Types Converter
+#### Custom Types Converter
 
-Custom converter function can be used to deserialize custom types.
+The custom converter function can be used to deserialize custom types. It takes two parameters:
 
-Converter function takes 2 parameters:
-- __value__ – string representation of a value
-- __type__ – "string"|"number"
+- *value* &mdash; String representation of a value
+- *type* &mdash; String indicating conversion type: `"string"` or `"number"`
 
-For example, the following converts all numbers to floats and makes strings uppercase:
+For example, the following code converts all numbers to floats and makes strings uppercase:
 
 ```squirrel
-result <- JSONParser.parse(str, function (val, type) {
-  if ("number" == type) {
+result <- JSONParser.parse(jsonString, function (value, type) {
+  if (type == "number") {
     return val.tofloat();
-  } else if ("string" == type) {
+  } else if (type == "string") {
     return val.toupper();
   }
 });
 ```
 
-If conjunction with **_serialize()** methods in JSON Encoder, it can be used to conveniently store custom data types in JSON.
-
-### Sample Flow
-
-The whole scenario may look like:
+###### Extended Example:
 
 ```squirrel
 class MyCustomType {
@@ -97,7 +102,6 @@ server.log(result.c.getValue());
 // == 100500
 ```
 
-
 ## Testing
 
 Repository contains [impUnit](https://github.com/electricimp/impUnit) tests and a configuration for [impTest](https://github.com/electricimp/impTest) tool.
@@ -111,7 +115,7 @@ imptest test
 By default configuration for the testing is read from [.imptest](https://github.com/electricimp/impTest/blob/develop/docs/imptest-spec.md).
 
 To run test with your settings (for example while you are developing), create your copy of **.imptest** file and name it something like **.imptest.local**, then run tests with:
- 
+
  ```bash
  imptest test -c .imptest.local
  ```
