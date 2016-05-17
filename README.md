@@ -35,6 +35,7 @@ The **parse** method takes one required parameter a JSON encoded string, and one
 local jsonString = "{\"one\" : 1}";
 result <- JSONParser.parse(jsonString);
 server.log(result.one);
+// == 1
 ```
 
 #### Custom Types Converter
