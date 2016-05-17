@@ -20,29 +20,28 @@
 
 Parses JSON into Squirrel data types.
 
-_To add this library to your project, add **#require "JSONParser.nut:0.3.2"** to the top of your code._
+`To add this library to your project, add` **#require "JSONParser.nut:0.3.2"** `to the top of your code.`
 
 ## Usage
 
 ```squirrel
-result <- JSONParser.parse(str[, <converter function>]);
+result <- JSONParser.parse(*jsonString[, converterFunction]*);
 ```
 
-## Custom Types Converter
+### Custom Types Converter
 
-Custom converter function can be used to deserialize custom types.
+The custom converter function can be used to deserialize custom types. It takes two parameters:
 
-Converter function takes 2 parameters:
-- __value__ – string representation of a value
-- __type__ – "string"|"number"
+- *value* &mdash; String representation of a value
+- *type* &mdash; String indicating conversion type: `"string"` or `"number"`
 
-For example, the following converts all numbers to floats and makes strings uppercase:
+For example, the following code converts all numbers to floats and makes strings uppercase:
 
 ```squirrel
-result <- JSONParser.parse(str, function (val, type) {
-  if ("number" == type) {
+result <- JSONParser.parse(jsonString, function (value, type) {
+  if (type == "number") {
     return val.tofloat();
-  } else if ("string" == type) {
+  } else if (type == "string") {
     return val.toupper();
   }
 });
@@ -52,7 +51,7 @@ If conjunction with **_serialize()** methods in JSON Encoder, it can be used to 
 
 ### Sample Flow
 
-The whole scenario may look like:
+The following code demonstrates a typical usage pattern:
 
 ```squirrel
 class MyCustomType {
@@ -96,7 +95,6 @@ server.log(result.c instanceof MyCustomType);
 server.log(result.c.getValue());
 // == 100500
 ```
-
 
 ## Testing
 
