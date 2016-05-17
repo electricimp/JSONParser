@@ -47,8 +47,6 @@ result <- JSONParser.parse(jsonString, function (value, type) {
 });
 ```
 
-If conjunction with **_serialize()** methods in JSON Encoder, it can be used to conveniently store custom data types in JSON.
-
 ### Sample Flow
 
 The following code demonstrates a typical usage pattern:
