@@ -18,7 +18,7 @@
 
 # Squirrel JSON Parser
 
-Parses JSON into Squirrel data types.
+This library parses JSON into Squirrel data types.
 
 **To add this library to your project, add** `#require "JSONParser.nut:1.0.0"` **to the top of your code.**
 
