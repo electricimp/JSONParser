@@ -24,23 +24,24 @@ Parses JSON into Squirrel data types.
 
 ## Usage
 
-JSONParser has no constructor and one public function *parse*.
+JSONParser has no constructor and one public function, *parse()*.
 
 ### parse(*jsonString[, converterFunction]*)
 
-The **parse** method takes one required parameter a JSON encoded string and one optional parameter a function used to convert custom types.  The method returns a deserialized version of the object that was passed in.
+The *parse()* method takes one required parameter, a JSON encoded string, and one optional parameter: a function used to convert custom types. The method returns a deserialized version of the object that was passed in.
 
-###### Basic Example:
+#### Basic Example
+
 ```squirrel
 local jsonString = "{\"one\" : 1}";
 result <- JSONParser.parse(jsonString);
 server.log(result.one);
-// == 1
+// Displays '1'
 ```
 
-#### Custom Types Converter
+### Custom Types Converter
 
-The custom converter function can be used to deserialize custom types. It takes two parameters:
+The optional converter function can be used to deserialize custom types. It takes two parameters:
 
 - *value* &mdash; String representation of a value
 - *type* &mdash; String indicating conversion type: `"string"` or `"number"`
@@ -57,7 +58,7 @@ result <- JSONParser.parse(jsonString, function (value, type) {
 });
 ```
 
-###### Extended Example:
+#### Extended Example:
 
 ```squirrel
 class MyCustomType {
@@ -80,15 +81,14 @@ o <- {a = 1, b = "Something", c = MyCustomType("100500") };
 s <- JSONEncoder.encode(o);
 
 server.log(s);
-// == {"a":1,"c":"@mycustomtype:100500","b":"Something"}
+// Displays '{"a":1,"c":"@mycustomtype:100500","b":"Something"}'
 
 result <- JSONParser.parse(s, function (val, type) {
   if ("number" == type) {
     return val.tofloat();
   } else if ("string" == type) {
-
     if (null != val.find("@mycustomtype")) {
-      // convert my custom type
+      // Convert my custom type
       val = MyCustomType(val.slice(14))
     }
 
@@ -97,9 +97,10 @@ result <- JSONParser.parse(s, function (val, type) {
 });
 
 server.log(result.c instanceof MyCustomType);
-// == true
+// Displays 'true'
+
 server.log(result.c.getValue());
-// == 100500
+// Displays '100500'
 ```
 
 ## Testing
