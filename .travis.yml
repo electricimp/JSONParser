@@ -4,7 +4,7 @@ node_js:
   - '5.5'
 
 before_script:
-  - npm i -g imptest@0.2.0
+  - npm i -g imptest@latest
 
 script:
   - imptest test
