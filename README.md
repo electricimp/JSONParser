@@ -1,26 +1,10 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-
-- [Squirrel JSON Parser](#squirrel-json-parser)
-  - [Usage](#usage)
-  - [Custom Types Converter](#custom-types-converter)
-    - [Sample Flow](#sample-flow)
-  - [Testing](#testing)
-  - [Development](#development)
-  - [License](#license)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-<br/>
-
-[![Build Status](https://travis-ci.org/electricimp/JSONParser.svg?branch=master)](https://travis-ci.org/electricimp/JSONParser)
-
 # Squirrel JSON Parser
 
 This library parses JSON into Squirrel data types.
 
 **To add this library to your project, add** `#require "JSONParser.nut:1.0.0"` **to the top of your code.**
+
+[![Build Status](https://travis-ci.org/electricimp/JSONParser.svg?branch=master)](https://travis-ci.org/electricimp/JSONParser)
 
 ## Usage
 
@@ -122,11 +106,6 @@ To run test with your settings (for example while you are developing), create yo
  ```
 
 Tests do not require any specific hardware.
-
-## Development
-
-This repository uses [git-flow](http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/).
-Please make your pull requests to the __develop__ branch.
 
 ## License
 
