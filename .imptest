@@ -3,7 +3,7 @@
     "devices": [
         "4353450000000001" /* EI.Test.Vimp.1 @ JSONParser lib */
     ],
-    "agentFile": "JSONParser.nut",
+    "agentFile": "JSONParser.class.nut",
     "deviceFile": false,
     "stopOnFailure": false,
     "timeout": 10,
