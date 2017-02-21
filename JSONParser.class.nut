@@ -44,15 +44,15 @@ class JSONParser {
         state = "colon";
       },
       ovalue = function () {
-        value = this._convert(value, "string", converter);
+        value = this._convert(value, "string", converter, key);
         state = "ocomma";
       }.bindenv(this),
       firstavalue = function () {
-        value = this._convert(value, "string", converter);
+        value = this._convert(value, "string", converter, key);
         state = "acomma";
       }.bindenv(this),
       avalue = function () {
-        value = this._convert(value, "string", converter);
+        value = this._convert(value, "string", converter, key);
         state = "acomma";
       }.bindenv(this)
     };
@@ -63,15 +63,15 @@ class JSONParser {
         state = "ok";
       },
       ovalue = function () {
-        value = this._convert(value, "number", converter);
+        value = this._convert(value, "number", converter, key);
         state = "ocomma";
       }.bindenv(this),
       firstavalue = function () {
-        value = this._convert(value, "number", converter);
+        value = this._convert(value, "number", converter, key);
         state = "acomma";
       }.bindenv(this),
       avalue = function () {
-        value = this._convert(value, "number", converter);
+        value = this._convert(value, "number", converter, key);
         state = "acomma";
       }.bindenv(this)
     };
@@ -297,23 +297,23 @@ class JSONParser {
    * @param {string} type
    * @param {function|null} converter
    */
-  function _convert(value, type, converter) {
+  function _convert(value, type, converter, key) {
     if ("function" == typeof converter) {
 
       // # of params for converter function
 
       local parametercCount = 2;
 
-      // .getinfos() is missing on ei platform
+      // .getinfos() is missing on ei platform //TODO: When this is available, then this check will fail because the "key" argument has been added
       if ("getinfos" in converter) {
         parametercCount = converter.getinfos().parameters.len()
           - 1 /* "this" is also included */;
       }
 
       if (parametercCount == 1) {
-        return converter(value);
+        return converter(value, key);
       } else if (parametercCount == 2) {
-        return converter(value, type);
+        return converter(value, type, key);
       } else {
         throw "Error: converter function must take 1 or 2 parameters"
       }
