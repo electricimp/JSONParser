@@ -1,7 +1,7 @@
 {
-    "modelId": "nFFs9qZjGmCB" /* Vimp.1 */,
+    "modelId": "yAGfbguy7_mj" /* Test Model B */,
     "devices": [
-        "4353450000000001" /* EI.Test.Vimp.1 @ JSONParser lib */
+        "23236c6938a609ee" /* B */
     ],
     "agentFile": "JSONParser.class.nut",
     "deviceFile": false,
