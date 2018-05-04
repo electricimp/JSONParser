@@ -8,5 +8,5 @@
     "*.test.nut",
     "tests/**/*.test.nut"
   ],
-  "deviceFile": "JSONParser.class.nut"
+  "agentFile": "JSONParser.class.nut"
 }
