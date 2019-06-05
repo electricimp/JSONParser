@@ -100,23 +100,15 @@ server.log(result.c.getValue());
 
 ## Testing ##
 
-This repository contains [impUnit](https://github.com/electricimp/impUnit) tests and a configuration for [impTest](https://github.com/electricimp/impTest) tool.
+This repository contains automated tests that can be run on the command line using [impt](https://github.com/electricimp/imp-central-impt). For documentation on how to configure and run tests please see the [impt testing guide](https://github.com/electricimp/imp-central-impt/blob/master/TestingGuide.md).
 
-Tests can be launched with:
+Test configuration is stored in the `.impt.test` file. To run tests locally: 
 
-```bash
-imptest test
-```
+- update the *deviceGroupId* to a device group Id in your impCentral account
+- use impt commands to log into your impCentral account 
+- run tests using the `impt test run` command
 
-By default, configuration for the testing is read from [.imptest](https://github.com/electricimp/impTest/blob/develop/docs/imptest-spec.md).
-
-To run test with your settings (for example while you are developing), create your copy of **.imptest** file and name it something like **.imptest.local**, then run tests with:
-
- ```bash
- imptest test -c .imptest.local
- ```
-
-Tests do not require any specific hardware.
+Tests do not require any specific hardware or environment variables. Please do not include modified `.impt.test` configuration files when submitting pull requests to this repository.
 
 ## License ##
 
