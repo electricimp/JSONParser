@@ -102,11 +102,11 @@ server.log(result.c.getValue());
 
 This repository contains automated tests that can be run on the command line using [impt](https://github.com/electricimp/imp-central-impt). For documentation on how to configure and run tests please see the [impt testing guide](https://github.com/electricimp/imp-central-impt/blob/master/TestingGuide.md).
 
-Test configuration is stored in the `.impt.test` file. To run tests locally: 
+Test configuration is stored in the `.impt.test` file. To run tests locally:
 
-- update the *deviceGroupId* to a device group Id in your impCentral account
-- use impt commands to log into your impCentral account 
-- run tests using the `impt test run` command
+- Update the *deviceGroupId* to a device group Id in your impCentral account.
+- Use impt commands to log into your impCentral account.
+- Run tests using the `impt test run` command.
 
 Tests do not require any specific hardware or environment variables. Please do not include modified `.impt.test` configuration files when submitting pull requests to this repository.
 
