@@ -1,4 +1,4 @@
-# Squirrel JSON Parser #
+# Squirrel JSON Parser 1.0.1 #
 
 This library parses JSON into Squirrel data types.
 
