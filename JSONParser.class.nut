@@ -3,7 +3,7 @@
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @package JSONParser
- * @version 0.3.1
+ * @version 1.0.1
  */
 
 /**
@@ -13,7 +13,7 @@
 class JSONParser {
 
   // should be the same for all components within JSONParser package
-  static version = [1, 0, 0];
+  static version = "1.0.1";
 
   /**
    * Parse JSON string into data structure
@@ -164,10 +164,15 @@ class JSONParser {
 
       ":" : {
         colon = function () {
-          // check if the key already exists
-          if (key in container) {
-            throw "Duplicate key \"" + key + "\"";
+          // Check if the key already exists
+          // NOTE previous code used 'if (key in container)...'
+          //      but this finds table ('container') member methods too
+          local err = false;
+          foreach (akey, avalue in container) {
+            if (akey == key) err = true;
+            break
           }
+          if (err) throw "Duplicate key \"" + key + "\"";
           state = "ovalue";
         }
       },
