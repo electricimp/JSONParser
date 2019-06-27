@@ -33,9 +33,9 @@ For example, the following code converts all numbers to floats and makes strings
 ```squirrel
 result <- JSONParser.parse(jsonString, function (value, type) {
     if (type == "number") {
-        return val.tofloat();
+        return value.tofloat();
     } else if (type == "string") {
-        return val.toupper();
+        return value.toupper();
     }
 });
 ```
