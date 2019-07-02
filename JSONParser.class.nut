@@ -246,20 +246,25 @@ class JSONParser {
       }
     };
 
+    //
+
     state = "go";
     stack = [];
 
     // current tokenizeing position
     local start = 0;
-    local
+    local lastToken = null;
+      
+    try {
+
+      local
         result,
         token,
-        lastToken,
         tokenizer = _JSONTokenizer();
-        
-    try {
+
       while (token = tokenizer.nextToken(str, start)) {
         lastToken = token;
+          
         if ("ptfn" == token.type) {
           // punctuation/true/false/null
           action[token.value][state]();
@@ -275,6 +280,7 @@ class JSONParser {
 
         start += token.length;
       }
+
     } catch (e) {
       state = e;
     }
@@ -368,6 +374,7 @@ class _JSONTokenizer {
    * @return {{type,value,length}|null}
    */
   function nextToken(str, start = 0) {
+
     local
       m,
       type,
