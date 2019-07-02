@@ -104,4 +104,10 @@ class Parsing_TestCase extends ImpTestCase {
      }, d
     );
   }
+
+  function test_5() {
+    local s = "77";
+    local d = JSONParser.parse(s);
+    this.assertDeepEqual(d, 77);
+  }
 }

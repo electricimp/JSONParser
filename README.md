@@ -1,8 +1,8 @@
-# Squirrel JSON Parser 1.0.1 #
+# Squirrel JSON Parser 1.0.2 #
 
 This library parses JSON into Squirrel data types.
 
-**To include this library in your project, add** `#require "JSONParser.class.nut:1.0.1"` **at the top of your code.**
+**To include this library in your project, add** `#require "JSONParser.class.nut:1.0.2"` **at the top of your code.**
 
 ![Build Status](https://cse-ci.electricimp.com/app/rest/builds/buildType:(id:JSONParser_BuildAndTest)/statusIcon)
 
