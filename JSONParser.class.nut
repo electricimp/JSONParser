@@ -246,25 +246,20 @@ class JSONParser {
       }
     };
 
-    //
-
     state = "go";
     stack = [];
 
     // current tokenizeing position
     local start = 0;
-    local lastToken = null;
-      
-    try {
-
-      local
+    local
         result,
         token,
+        lastToken,
         tokenizer = _JSONTokenizer();
-
+        
+    try {
       while (token = tokenizer.nextToken(str, start)) {
         lastToken = token;
-          
         if ("ptfn" == token.type) {
           // punctuation/true/false/null
           action[token.value][state]();
@@ -280,7 +275,6 @@ class JSONParser {
 
         start += token.length;
       }
-
     } catch (e) {
       state = e;
     }
@@ -295,7 +289,7 @@ class JSONParser {
 
     // if this is a standalone string or number, convert it
     if (lastToken.type == "string" || lastToken.type == "number") {
-      return this._convert(lastToken.value, lastToken.type, converter, null)
+      return this._convert(lastToken.value, lastToken.type, converter)
     }
       
     return value;
@@ -374,7 +368,6 @@ class _JSONTokenizer {
    * @return {{type,value,length}|null}
    */
   function nextToken(str, start = 0) {
-
     local
       m,
       type,
