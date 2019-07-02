@@ -253,7 +253,8 @@ class JSONParser {
 
     // current tokenizeing position
     local start = 0;
-
+    local lastToken = null;
+      
     try {
 
       local
@@ -262,7 +263,8 @@ class JSONParser {
         tokenizer = _JSONTokenizer();
 
       while (token = tokenizer.nextToken(str, start)) {
-
+        lastToken = token;
+          
         if ("ptfn" == token.type) {
           // punctuation/true/false/null
           action[token.value][state]();
@@ -284,13 +286,18 @@ class JSONParser {
     }
 
     // check is the final state is not ok
-    // or if there is somethign left in the str
+    // or if there is something left in the str
     if (state != "ok" || regexp("[^\\s]").capture(str, start)) {
       local min = @(a, b) a < b ? a : b;
       local near = str.slice(start, min(str.len(), start + 10));
       throw "JSON Syntax Error near `" + near + "`";
     }
 
+    // if this is a standalone string or number, convert it
+    if (lastToken.type == "string" || lastToken.type == "number") {
+      return this._convert(lastToken.value, lastToken.type, converter)
+    }
+      
     return value;
   }
 
