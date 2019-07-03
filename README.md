@@ -1,8 +1,8 @@
-# Squirrel JSON Parser 1.0.2 #
+# Squirrel JSON Parser 2.0.0 #
 
 This library parses JSON into Squirrel data types.
 
-**To include this library in your project, add** `#require "JSONParser.class.nut:1.0.2"` **at the top of your code.**
+**To include this library in your project, add** `#require "JSONParser.class.nut:2.0.0"` **at the top of your code.**
 
 ![Build Status](https://cse-ci.electricimp.com/app/rest/builds/buildType:(id:JSONParser_BuildAndTest)/statusIcon)
 
@@ -10,7 +10,7 @@ This library parses JSON into Squirrel data types.
 
 JSONParser has no constructor and one public function, *parse()*.
 
-### parse(*jsonString[, converter]*)
+### parse(*jsonString[, converter]*) ###
 
 This method converts the supplied JSON to a table.
 
@@ -27,6 +27,7 @@ An optional converter function can be passed into *parse()* to de-serialize cust
 
 - *value* &mdash; String representation of a value.
 - *type* &mdash; String indicating conversion type: `"string"` or `"number"`.
+- *key* &mdash; If the value is in a table, this is the value's key.
 
 For example, the following code converts all numbers to floats and makes strings uppercase:
 
@@ -78,7 +79,7 @@ s <- JSONEncoder.encode(o);
 server.log(s);
 // Displays '{"a":1,"c":"@mycustomtype:100500","b":"Something"}'
 
-result <- JSONParser.parse(s, function (val, type) {
+result <- JSONParser.parse(s, function (val, type, key) {
     if ("number" == type) {
         return val.tofloat();
     } else if ("string" == type) {
