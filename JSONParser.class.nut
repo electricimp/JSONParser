@@ -3,7 +3,7 @@
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @package JSONParser
- * @version 1.0.2
+ * @version 2.0.0
  */
 
 /**
@@ -13,7 +13,7 @@
 class JSONParser {
 
   // should be the same for all components within JSONParser package
-  static version = "1.0.2";
+  static version = "2.0.0";
 
   /**
    * Parse JSON string into data structure
@@ -44,15 +44,15 @@ class JSONParser {
         state = "colon";
       },
       ovalue = function () {
-        value = this._convert(value, "string", converter);
+        value = this._convert(value, "string", converter, key);
         state = "ocomma";
       }.bindenv(this),
       firstavalue = function () {
-        value = this._convert(value, "string", converter);
+        value = this._convert(value, "string", converter, key);
         state = "acomma";
       }.bindenv(this),
       avalue = function () {
-        value = this._convert(value, "string", converter);
+        value = this._convert(value, "string", converter, key);
         state = "acomma";
       }.bindenv(this)
     };
@@ -63,15 +63,15 @@ class JSONParser {
         state = "ok";
       },
       ovalue = function () {
-        value = this._convert(value, "number", converter);
+        value = this._convert(value, "number", converter, key);
         state = "ocomma";
       }.bindenv(this),
       firstavalue = function () {
-        value = this._convert(value, "number", converter);
+        value = this._convert(value, "number", converter, key);
         state = "acomma";
       }.bindenv(this),
       avalue = function () {
-        value = this._convert(value, "number", converter);
+        value = this._convert(value, "number", converter, key);
         state = "acomma";
       }.bindenv(this)
     };
@@ -254,7 +254,7 @@ class JSONParser {
     // current tokenizeing position
     local start = 0;
     local lastToken = null;
-      
+
     try {
 
       local
@@ -264,7 +264,7 @@ class JSONParser {
 
       while (token = tokenizer.nextToken(str, start)) {
         lastToken = token;
-          
+
         if ("ptfn" == token.type) {
           // punctuation/true/false/null
           action[token.value][state]();
@@ -295,9 +295,9 @@ class JSONParser {
 
     // if this is a standalone string or number, convert it
     if (lastToken.type == "string" || lastToken.type == "number") {
-      return this._convert(lastToken.value, lastToken.type, converter)
+      return this._convert(lastToken.value, lastToken.type, converter, null)
     }
-      
+
     return value;
   }
 
@@ -309,33 +309,33 @@ class JSONParser {
    * @param {string} type
    * @param {function|null} converter
    */
-  function _convert(value, type, converter) {
-    if ("function" == typeof converter) {
+  function _convert(value, type, converter, key) {
+        if ("function" == typeof converter) {
+            // # of params for converter function
+            local parametercCount = 3;
 
-      // # of params for converter function
+            // .getinfos() is missing on ei platform
+            if ("getinfos" in converter) {
+                parametercCount = converter.getinfos().parameters.len()
+                - 1 /* "this" is also included */;
+            }
 
-      local parametercCount = 2;
+            if (parametercCount == 1) {
+                return converter(value);
+            } else if (parametercCount == 2) {
+                return converter(value, type);
+            } else if(parametercCount == 3) {
+                return converter(value, type, key);
+            } else {
+                throw "Error: converter function must take 1, 2, or 3 parameters"
+            }
 
-      // .getinfos() is missing on ei platform
-      if ("getinfos" in converter) {
-        parametercCount = converter.getinfos().parameters.len()
-          - 1 /* "this" is also included */;
-      }
-
-      if (parametercCount == 1) {
-        return converter(value);
-      } else if (parametercCount == 2) {
-        return converter(value, type);
-      } else {
-        throw "Error: converter function must take 1 or 2 parameters"
-      }
-
-    } else if ("number" == type) {
-      return (value.find(".") == null && value.find("e") == null && value.find("E") == null) ? value.tointeger() : value.tofloat();
-    } else {
-      return value;
+        } else if ("number" == type) {
+            return (value.find(".") == null && value.find("e") == null && value.find("E") == null) ? value.tointeger() : value.tofloat();
+        } else {
+            return value;
+        }
     }
-  }
 }
 
 /**
